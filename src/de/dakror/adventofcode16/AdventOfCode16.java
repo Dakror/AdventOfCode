@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,7 +43,7 @@ public class AdventOfCode16 {
 	static String path = "src\\de\\dakror\\adventofcode16\\";
 	
 	public static void main(String[] args) throws Exception {
-		Day13_a_or_b();
+		Day14_a();
 	}
 	
 	/////////////////////////////////////////////
@@ -57,6 +58,81 @@ public class AdventOfCode16 {
 	}
 	
 	/////////////////////////////////////////////
+	
+	static class Day14_Hash {
+		char c;
+		int index;
+		
+		public Day14_Hash(char c, int index) {
+			this.c = c;
+			this.index = index;
+		}
+		
+		@Override
+		public int hashCode() {
+			return index;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			return obj.hashCode() == hashCode();
+		}
+	}
+	
+	public static void Day14_a() throws Exception {
+		String salt = "zpqevtbw"; // zpqevtbw
+		
+		// a) answer was 16106 BURN IN HELL
+		
+		ArrayList<Day14_Hash> list = new ArrayList<>();
+		
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		Pattern p = Pattern.compile("(.)\\1{2}");
+		Pattern p1 = Pattern.compile("(.)\\1{4}");
+		
+		ArrayList<Integer> keys = new ArrayList<>();
+		
+		int i = 0;
+		while (true) {
+			String hashtext = salt + i;
+			
+			for (int j = 0; j < 2017; j++) {
+				BigInteger bigInt = new BigInteger(1, md.digest(hashtext.getBytes()));
+				hashtext = bigInt.toString(16);
+				while (hashtext.length() < 32) {
+					hashtext = "0" + hashtext;
+				}
+			}
+			
+			// b) answer was 22423
+			
+			Matcher m1 = p1.matcher(hashtext);
+			if (m1.find()) {
+				char c = m1.group(1).charAt(0);
+				for (Iterator<Day14_Hash> iter = list.iterator(); iter.hasNext();) {
+					Day14_Hash h = iter.next();
+					if (h.c == c && i - h.index <= 1000) {
+						keys.add(h.index);
+						System.out.println("I:::" + i + ": " + h.index + ":" + h.c + ", " + keys.size() + ", " + list.size());
+						if (keys.size() == 74) {
+							Collections.sort(keys);
+							System.out.println(keys.get(63));
+							System.exit(0);
+						}
+					}
+				}
+			}
+			
+			Matcher m = p.matcher(hashtext);
+			if (m.find()) {
+				char c = m.group(1).charAt(0);
+				list.add(new Day14_Hash(c, i));
+			}
+			
+			i++;
+		}
+		
+	}
 	
 	static int Day13_NumberOfSetBits(int i) {
 		i = i - ((i >>> 1) & 0x55555555);
