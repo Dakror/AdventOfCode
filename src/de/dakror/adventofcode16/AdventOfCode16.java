@@ -43,7 +43,7 @@ public class AdventOfCode16 {
 	static String path = "src\\de\\dakror\\adventofcode16\\";
 	
 	public static void main(String[] args) throws Exception {
-		Day14_a();
+		Day15_a_and_b();
 	}
 	
 	/////////////////////////////////////////////
@@ -58,6 +58,30 @@ public class AdventOfCode16 {
 	}
 	
 	/////////////////////////////////////////////
+	
+	public static void Day15_a_and_b() {
+		int[] pos = new int[] { 1, 10, 2, 1, 3, 5, 0 };
+		int[] max = new int[] { 13, 19, 3, 7, 5, 17, 11 };
+		
+		int num = 0;
+		while (true) {
+			boolean done = true;
+			for (int i = 0; i < pos.length; i++) {
+				if ((pos[i] + num + i + 1) % max[i] != 0) {
+					done = false;
+					break;
+				}
+			}
+			
+			if (done) {
+				System.out.println(num); // a) answer was 376777, rank 637
+				// b) answer was 3903937 rank 623
+				return;
+			}
+			
+			num++;
+		}
+	}
 	
 	static class Day14_Hash {
 		char c;
