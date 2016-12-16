@@ -43,7 +43,7 @@ public class AdventOfCode16 {
 	static String path = "src\\de\\dakror\\adventofcode16\\";
 	
 	public static void main(String[] args) throws Exception {
-		Day15_a_and_b();
+		Day16_ab();
 	}
 	
 	/////////////////////////////////////////////
@@ -58,6 +58,37 @@ public class AdventOfCode16 {
 	}
 	
 	/////////////////////////////////////////////
+	
+	public static void Day16_ab() {
+		StringBuilder input = new StringBuilder("10111100110001111");
+		int num = 35651584; // a 272
+		StringBuilder sb = new StringBuilder();
+		long t = System.currentTimeMillis();
+		while (input.length() < num) {
+			sb.setLength(0);
+			
+			String q = sb.append(input).reverse().toString().replace("0", "-").replace("1", "0").replace("-", "1");
+			input.append("0" + q);
+		}
+		
+		System.out.println("done");
+		
+		input.setLength(num);
+		do {
+			StringBuilder q = new StringBuilder();
+			for (int i = 0; i < input.length(); i += 2) {
+				q.append(input.charAt(i) == input.charAt(i + 1) ? 1 : 0);
+			}
+			input.setLength(0);
+			input.append(q);
+		} while (input.length() % 2 == 0);
+		
+		System.out.println(input);
+		
+		System.out.println(System.currentTimeMillis() - t);
+		// a) answer was 11100110111101110
+		// b answer was 10001101010000101
+	}
 	
 	public static void Day15_a_and_b() {
 		int[] pos = new int[] { 1, 10, 2, 1, 3, 5, 0 };
