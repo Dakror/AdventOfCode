@@ -43,7 +43,7 @@ public class AdventOfCode16 {
 	static String path = "src\\de\\dakror\\adventofcode16\\";
 	
 	public static void main(String[] args) throws Exception {
-		Day16_ab();
+		Day17_ab();
 	}
 	
 	/////////////////////////////////////////////
@@ -58,6 +58,101 @@ public class AdventOfCode16 {
 	}
 	
 	/////////////////////////////////////////////
+	
+	static class Day17_State {
+		int x, y;
+		String path = "";
+		
+		Day17_State prev;
+		
+		public Day17_State(int x, int y, String dir, Day17_State prev) {
+			this.x = x;
+			this.y = y;
+			if (prev != null) {
+				this.prev = prev;
+				path = prev.path + dir;
+			}
+		}
+	}
+	
+	public static void Day17_ab() throws Exception {
+		String input = "lpvhkcbi";
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		
+		ArrayList<Day17_State> queue = new ArrayList<>();
+		queue.add(new Day17_State(0, 0, null, null));
+		
+		HashSet<String> visited = new HashSet<>();
+		
+		HashSet<String> paths = new HashSet<>();
+		
+		boolean shortest = false;
+		
+		while (queue.size() > 0) {
+			Day17_State s = queue.remove(0);
+			
+			if (s.x == 3 && s.y == 3) {
+				if (!shortest) {
+					System.out.println("Shortest Path: " + s.path); //				answer was DUDRLRRDDR, rank 618
+					shortest = true;
+				}
+				paths.add(s.path);
+				continue;
+			}
+			
+			BigInteger bigInt = new BigInteger(1, md.digest((input + s.path).getBytes()));
+			String hashtext = bigInt.toString(16);
+			while (hashtext.length() < 32) {
+				hashtext = "0" + hashtext;
+			}
+			
+			for (int i = 0; i < 4; i++) {
+				if (hashtext.charAt(i) > 'a') {
+					switch (i) {
+						case 0: {
+							if (s.y > 0 && !visited.contains(s.path + "U")) {
+								Day17_State p = new Day17_State(s.x, s.y - 1, "U", s);
+								visited.add(p.path);
+								queue.add(p);
+							}
+							break;
+						}
+						case 1: {
+							if (s.y < 3 && !visited.contains(s.path + "D")) {
+								Day17_State p = new Day17_State(s.x, s.y + 1, "D", s);
+								visited.add(p.path);
+								queue.add(p);
+							}
+							break;
+						}
+						case 2: {
+							if (s.x > 0 && !visited.contains(s.path + "L")) {
+								Day17_State p = new Day17_State(s.x - 1, s.y, "L", s);
+								visited.add(p.path);
+								queue.add(p);
+							}
+							break;
+						}
+						case 3: {
+							if (s.x < 3 && !visited.contains(s.path + "R")) {
+								Day17_State p = new Day17_State(s.x + 1, s.y, "R", s);
+								visited.add(p.path);
+								queue.add(p);
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+		
+		int l = 0;
+		for (String s : paths)
+			if (s.length() > l) l = s.length();
+		
+		System.out.println("Longest Path: " + l);
+		// b answer was 788, rank 565
+	}
 	
 	public static void Day16_ab() {
 		StringBuilder input = new StringBuilder("10111100110001111");
@@ -90,7 +185,7 @@ public class AdventOfCode16 {
 		// b answer was 10001101010000101
 	}
 	
-	public static void Day15_a_and_b() {
+	public static void Day15_ab() {
 		int[] pos = new int[] { 1, 10, 2, 1, 3, 5, 0 };
 		int[] max = new int[] { 13, 19, 3, 7, 5, 17, 11 };
 		
@@ -223,7 +318,7 @@ public class AdventOfCode16 {
 		}
 	}
 	
-	public static void Day13_a_or_b() throws Exception {
+	public static void Day13_ab() throws Exception {
 		boolean[][] map = new boolean[50][50];
 		for (int i = 0; i < 50; i++) { // y
 			for (int j = 0; j < 50; j++) { //x
@@ -282,7 +377,7 @@ public class AdventOfCode16 {
 		System.out.println(count50s); // part b  answer was 141, rank 672
 	}
 	
-	public static void Day12_a_and_b() throws Exception {
+	public static void Day12_ab() throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day12.txt")));
 		String line = "";
 		
@@ -455,7 +550,7 @@ public class AdventOfCode16 {
 		return true;
 	}
 	
-	public static void Day11_a_and_b() throws Exception {
+	public static void Day11_ab() throws Exception {
 		HashSet<String> visited = new HashSet<>();
 		
 		ArrayList<Day11_State> queue = new ArrayList<>();
@@ -548,7 +643,7 @@ public class AdventOfCode16 {
 		}
 	}
 	
-	public static void Day10_a_and_b() throws Exception {
+	public static void Day10_ab() throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day10.txt")));
 		String line = "";
 		
@@ -677,7 +772,7 @@ public class AdventOfCode16 {
 		// answer was 183269
 	}
 	
-	public static void Day8_a_and_b() throws Exception {
+	public static void Day8_ab() throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day8.txt")));
 		String line = "";
 		
