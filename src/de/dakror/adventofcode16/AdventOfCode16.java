@@ -43,7 +43,7 @@ public class AdventOfCode16 {
 	static String path = "src\\de\\dakror\\adventofcode16\\";
 	
 	public static void main(String[] args) throws Exception {
-		Day17_ab();
+		Day18_ab();
 	}
 	
 	/////////////////////////////////////////////
@@ -58,6 +58,32 @@ public class AdventOfCode16 {
 	}
 	
 	/////////////////////////////////////////////
+	
+	public static void Day18_ab() {
+		String row0 = ".^^^.^.^^^^^..^^^..^..^..^^..^.^.^.^^.^^....^.^...^.^^.^^.^^..^^..^.^..^^^.^^...^...^^....^^.^^^^^^^";
+		
+		int safe = 0;
+		boolean[][] map = new boolean[400000][100];
+		for (int i = 0; i < 100; i++) {
+			map[0][i] = row0.charAt(i) == '^';
+			if (!map[0][i]) safe++;
+		}
+		
+		for (int i = 1; i < map.length; i++) {
+			for (int j = 0; j < 100; j++) {
+				boolean m = j == 0 ? map[i - 1][1] : (j == 99 ? map[i - 1][j - 1] : map[i - 1][j - 1] ^ map[i - 1][j + 1]);
+				if (!m) safe++;
+				map[i][j] = m;
+			}
+			if (i == 39) {
+				System.out.println("a): " + safe);
+				// answer was 1939, rank 963
+			}
+		}
+		
+		System.out.println("b): " + safe);
+		// b answer was 19999535, rank 945
+	}
 	
 	static class Day17_State {
 		int x, y;
