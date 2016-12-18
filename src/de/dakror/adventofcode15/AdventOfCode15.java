@@ -48,7 +48,7 @@ public class AdventOfCode15 {
 	static String path = "src\\de\\dakror\\adventofcode15\\";
 	
 	public static void main(String[] args) throws Exception {
-		Day19_2();
+		Day22_1();
 	}
 	
 	// ---------------- template ---------------- //
@@ -61,6 +61,329 @@ public class AdventOfCode15 {
 		
 		br.close();
 	}
+	
+	static class Day22_State {
+		int bossHp, hp;
+		int armor, mana;
+		int t0, t1, t2;
+		int manaSpent;
+		
+		Day22_State prev;
+		
+		String depth = "";
+		String action = "";
+		
+		public Day22_State(Day22_State copy) {
+			bossHp = copy.bossHp;
+			hp = copy.hp;
+			armor = copy.armor;
+			mana = copy.mana;
+			t0 = copy.t0;
+			t1 = copy.t1;
+			t2 = copy.t2;
+			manaSpent = copy.manaSpent;
+			prev = copy;
+			depth = copy.depth + "  ";
+		}
+		
+		public Day22_State(int bossHp, int playerHp, int playerArmor, int playerMana, int t0, int t1, int t2, int manaSpent, Day22_State prev) {
+			this.bossHp = bossHp;
+			hp = playerHp;
+			armor = playerArmor;
+			mana = playerMana;
+			this.t0 = t0;
+			this.t1 = t1;
+			this.t2 = t2;
+			this.manaSpent = manaSpent;
+			this.prev = prev;
+		}
+		
+		void ticks() {
+			if (t0 > 0) {
+				t0--;
+				action += " Shield:" + t0;
+			}
+			if (t0 <= 0) armor = 0;
+			
+			if (t1 > 0) {
+				//				System.out.println("Poison deals 3 damage; its timer is now " + (t1 - 1));
+				bossHp -= 3;
+				t1--;
+				action += ", Poison:" + t1;
+			}
+			
+			if (t2 > 0) {
+				//				System.out.println("Recharge provides 101 mana; its timer is now " + (t2 - 1));
+				mana += 101;
+				t2--;
+				action += ", Recharge:" + t2;
+			}
+		}
+		
+		String hash() {
+			return String.format("%d%d%d%d%d%d%d%d", bossHp, hp, t0, t1, t2, armor, mana, manaSpent) + action;
+		}
+	}
+	
+	public static void Day22_1() throws InterruptedException {
+		// 1483 too low
+		Day22_State start = new Day22_State(14, 10, 0, 250, 0, 0, 0, 0, null);
+		
+		ArrayList<Day22_State> queue = new ArrayList<>();
+		queue.add(start);
+		
+		HashSet<String> seen = new HashSet<>();
+		
+		int minMana = Integer.MAX_VALUE;
+		
+		while (queue.size() > 0) {
+			//			Thread.sleep(50);
+			
+			Day22_State s = queue.remove(0);
+			
+			if (s.prev != null) {
+				//				System.out.println("-- Boss Turn --");
+				s.ticks();
+				
+				if (s.bossHp <= 0 && s.hp > 0) {
+					minMana = Math.min(minMana, s.manaSpent);
+					
+					
+					Day22_State q = s;
+					String p = "";
+					do {
+						p = String.format(q.depth + "Player has %d hit points, %d armor, %d mana\n", q.hp, q.armor, q.mana) + String.format(q.depth + "Boss has %d hit points\n", q.bossHp) + (q.action.trim().length() > 0 ? q.depth + q.action.trim() + "\n" : "") + p;
+						q = q.prev;
+					} while (q != null);
+					System.out.println(p);
+					
+					
+					System.out.println(minMana);
+					continue;
+				}
+				
+				s.hp -= 8 - s.armor;
+				//				System.out.format("Boss attacks for 10 - %d = %d damage\n", s.armor, 10 - s.armor);
+			}
+			
+			
+			if (s.hp <= 0) continue;
+			
+			//			System.out.println("-- Player Turn --");
+			
+			if (s.mana >= 53) {
+				Day22_State s1 = new Day22_State(s);
+				s1.ticks();
+				//				System.out.println("Player casts Missile");
+				s1.bossHp -= 4;
+				s1.mana -= 53;
+				s1.manaSpent += 53;
+				s1.action = "Missile";
+				
+				if (!seen.contains(s1.hash())) {
+					queue.add(s1);
+					seen.add(s1.hash());
+				}
+			}
+			if (s.mana >= 73) {
+				Day22_State s1 = new Day22_State(s);
+				s1.ticks();
+				//				System.out.println("Player casts Drain");
+				s1.bossHp -= 2;
+				s1.hp += 2;
+				s1.mana -= 73;
+				s1.manaSpent += 73;
+				s1.action = "Drain";
+				
+				if (!seen.contains(s1.hash())) {
+					queue.add(s1);
+					seen.add(s1.hash());
+				}
+			}
+			if (s.mana >= 113) {
+				Day22_State s1 = new Day22_State(s);
+				s1.ticks();
+				if (s1.t0 <= 0) {
+					//					System.out.println("Player casts Shield");
+					s1.armor = 7;
+					s1.t0 = 6;
+					s1.mana -= 113;
+					s1.manaSpent += 113;
+					s1.action = "Shield";
+					
+					if (!seen.contains(s1.hash())) {
+						queue.add(s1);
+						seen.add(s1.hash());
+					}
+				}
+			}
+			if (s.mana >= 173) {
+				Day22_State s1 = new Day22_State(s);
+				s1.ticks();
+				if (s1.t1 <= 0) {
+					//					System.out.println("Player casts Poison");
+					s1.t1 = 6;
+					s1.mana -= 173;
+					s1.manaSpent += 173;
+					s1.action = "Poison";
+					
+					if (!seen.contains(s1.hash())) {
+						queue.add(s1);
+						seen.add(s1.hash());
+					}
+				}
+			}
+			if (s.mana >= 229) {
+				Day22_State s1 = new Day22_State(s);
+				s1.ticks();
+				if (s1.t2 <= 0) {
+					//					System.out.println("Player casts Recharge");
+					s1.t2 = 5;
+					s1.mana -= 173;
+					s1.manaSpent += 173;
+					s1.action = "Recharge";
+					
+					if (!seen.contains(s1.hash())) {
+						queue.add(s1);
+						seen.add(s1.hash());
+					}
+				}
+			}
+		}
+		
+		System.out.println(minMana);
+	}
+	
+	public static void Day21_1_and_2() {
+		int[][] weapons = { { 8, 4 }, { 10, 5 }, { 25, 6 }, { 40, 7 }, { 74, 8 } };
+		int[][] armor = { { 13, 1 }, { 31, 2 }, { 53, 3 }, { 75, 3 }, { 102, 5 } };
+		int[][] rings = { { 25, 1, 0 }, { 50, 2, 0 }, { 100, 3, 0 }, { 20, 0, 1 }, { 40, 0, 2 }, { 80, 0, 3 } };
+		
+		int min = 99999, max = 0;
+		
+		// one weapon
+		for (int i = 0; i < 5; i++) {
+			// zero or one armor
+			for (int j = -1; j < 5; j++) {
+				// first ring
+				for (int k = -1; k < 6; k++) {
+					// second ring
+					for (int l = -1; l < 6; l++) {
+						if (k > -1 && k == l) continue; // rings not twice
+						
+						int[] player = { 100, weapons[i][1], 0 };
+						int sum = weapons[i][0];
+						
+						if (j > -1) {
+							sum += armor[j][0];
+							player[2] = armor[j][1];
+						}
+						
+						if (k > -1) {
+							sum += rings[k][0];
+							player[1] += rings[k][1];
+							player[2] += rings[k][2];
+						}
+						
+						if (l > -1) {
+							sum += rings[l][0];
+							player[1] += rings[l][1];
+							player[2] += rings[l][2];
+						}
+						
+						if (Day21_fight(player, sum == 208)) {
+							if (sum < min) min = sum;
+						} else {
+							if (sum > max) {
+								System.out.println(sum);
+								max = sum;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// b not working
+		System.out.println(min + ", " + max);
+		// answer was 121
+		//hmm b) was 201 but why
+		// idek
+	}
+	
+	static boolean Day21_fight(int[] player, boolean pr) {
+		int[] boss = { 103, 9, 2 };
+		if (pr) System.out.println("---------------------");
+		boolean pl = true;
+		while (true) {
+			
+			int o = pl ? boss[0] : player[0];
+			
+			if (pl) {
+				boss[0] -= Math.max(1, player[1] - boss[2]);
+			} else {
+				player[0] -= Math.max(1, boss[1] - player[2]);
+			}
+			
+			if (pr) System.out.println((pl ? "Boss:	" : "Player:	") + o + " -> " + (pl ? boss[0] : player[0]));
+			
+			if (player[0] <= 0) return false;
+			if (boss[0] <= 0) return true;
+			pl = !pl;
+		}
+	}
+	
+	public static void Day20_2() {
+		int input = 34000000;
+		
+		int size = input / 10;
+		
+		int[] houses = new int[size];
+		Arrays.fill(houses, 10);
+		
+		// ashamed, i looked it up https://www.reddit.com/r/adventofcode/comments/3xjpp2/day_20_solutions/cy61wig/
+		// answer was 831600
+		// TIL that large arrays can be waayyyy faster than dynamic maps and shit
+		for (int i = 0; i < size; i++) {
+			int count = 0;
+			for (int j = i; j < size; j += i) {
+				houses[j] += i * 11;
+				if (++count == 50) break;
+			}
+		}
+		for (int i = 0; i < houses.length; i++) {
+			if (houses[i] >= input) {
+				System.out.println(i);
+				break;
+			}
+		}
+	}
+	
+	public static void Day20_1() {
+		int input = 34000000;
+		
+		int i = 1;
+		while (true) {
+			int maxD = (int) Math.sqrt(i);
+			int sum = 10 + i * 10;
+			for (int j = 2; j <= maxD; j++) {
+				if (i % j == 0) {
+					sum += 10 * j;
+					int d = i / j;
+					if (d != j) sum += 10 * d;
+				}
+			}
+			
+			if (sum >= input) {
+				System.out.println(">>" + i);
+				// answer was 786240
+				return;
+			}
+			i++;
+		}
+	}
+	
+	//// continued in 2016 out of boredom ///
 	
 	public static void Day19_2() throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day19.txt")));
@@ -1257,15 +1580,15 @@ public class AdventOfCode15 {
 	// day2.2 var ribbonAll=0;for(i in presents){if(presents[i].indexOf("x") == -1) continue;var s=presents[i].split("x"),l=parseInt(s[0]),w=parseInt(s[1]),h=parseInt(s[2]),ribbon=Math.min(2*(l+w),Math.min(2*(w+h),2*(h+l))) + l*w*h;ribbonAll+=ribbon;}
 	// day2.1 for(i in presents){if(presents[i].indexOf("x") == -1) continue;var s=presents[i].split("x"),l=parseInt(s[0]),w=parseInt(s[1]),h=parseInt(s[2]),paper=2*l*w+2*w*h+2*h*l+Math.min(l*w,Math.min(w*h,h*l));console.log(s);paperAll+=paper;}
 	
-	//	public static void Day1() {
-	//		int pos = 0;
-	//		for (int i = 0; i < Day1.length(); i++) {
-	//			if (Day1.charAt(i) == '(') pos++;
-	//			else pos--;
+	//		public static void Day1() {
+	//			int pos = 0;
+	//			for (int i = 0; i < Day1.length(); i++) {
+	//				if (Day1.charAt(i) == '(') pos++;
+	//				else pos--;
+	//				
+	//				if (pos == -1) System.out.println(i + 1);
+	//			}
 	//			
-	//			if (pos == -1) System.out.println(i + 1);
+	//			System.out.println(pos);
 	//		}
-	//		
-	//		System.out.println(pos);
-	//	}
 }
