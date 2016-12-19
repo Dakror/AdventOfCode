@@ -43,7 +43,7 @@ public class AdventOfCode16 {
 	static String path = "src\\de\\dakror\\adventofcode16\\";
 	
 	public static void main(String[] args) throws Exception {
-		Day18_ab();
+		Day19_b();
 	}
 	
 	/////////////////////////////////////////////
@@ -58,6 +58,75 @@ public class AdventOfCode16 {
 	}
 	
 	/////////////////////////////////////////////
+	
+	static class Day19_Elf {
+		Day19_Elf next;
+		Day19_Elf prev;
+		int num;
+	}
+	
+	public static void Day19_b() throws InterruptedException {
+		int l = 5;
+		
+		System.out.println(l - Math.pow(3, Math.floor(Math.log(l) / Math.log(3))));
+		// rank 988, answer was 1423634, filthy copy
+		
+		// hold everything in memory
+		Day19_Elf[] nodes = new Day19_Elf[l];
+		// smart loop inits
+		// this guy https://www.reddit.com/r/adventofcode/comments/5j4lp1/2016_day_19_solutions/dbdfasl/
+		for (int i = 1; i <= l; i++) {
+			nodes[i - 1] = new Day19_Elf();
+			nodes[i - 1].num = i;
+			
+			// past inits
+			if (i > 1) {
+				nodes[i - 1].prev = nodes[i - 2];
+				nodes[i - 2].next = nodes[i - 1];
+			}
+		}
+		
+		// loop
+		nodes[0].prev = nodes[l - 1];
+		nodes[l - 1].next = nodes[0];
+		
+		int length = l;
+		Day19_Elf cur = nodes[0];
+		Day19_Elf removal = nodes[0];
+		int dist = 0;
+		
+		while (dist < length / 2) {
+			removal = removal.next;
+			++dist;
+		}
+		
+		while (length > 1) {
+			while (dist < length / 2) {
+				removal = removal.next;
+				++dist;
+			}
+			
+			Day19_Elf n = removal.next;
+			removal.prev.next = removal.next;
+			removal.next.prev = removal.prev;
+			
+			removal = n;
+			
+			length -= 1;
+			cur = cur.next;
+			dist -= 1;
+		}
+		
+		System.out.println(cur.num);
+		
+	}
+	
+	public static void Day19_a() throws InterruptedException {
+		int l = 3017957;
+		
+		System.out.println(2 * (l - Math.pow(2, Math.floor(Math.log(l) / Math.log(2)))) + 1);
+		// answer was 1841611
+	}
 	
 	public static void Day18_ab() {
 		String row0 = ".^^^.^.^^^^^..^^^..^..^..^^..^.^.^.^^.^^....^.^...^.^^.^^.^^..^^..^.^..^^^.^^...^...^^....^^.^^^^^^^";
