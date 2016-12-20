@@ -43,7 +43,7 @@ public class AdventOfCode16 {
 	static String path = "src\\de\\dakror\\adventofcode16\\";
 	
 	public static void main(String[] args) throws Exception {
-		Day19_b();
+		Day20_a();
 	}
 	
 	/////////////////////////////////////////////
@@ -58,6 +58,86 @@ public class AdventOfCode16 {
 	}
 	
 	/////////////////////////////////////////////
+	
+	static class Range {
+		long len;
+		long start;
+		
+		public Range(long start, long len) {
+			this.start = start;
+			this.len = len;
+		}
+		
+		@Override
+		public String toString() {
+			return start + "-" + end();
+		}
+		
+		public long end() {
+			return start + len;
+		}
+	}
+	
+	public static void Day20_a() throws Exception {
+		BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day20.txt")));
+		String line = "";
+		
+		ArrayList<Range> list = new ArrayList<>();
+		
+		while ((line = br.readLine()) != null) {
+			String[] parts = line.split("-");
+			long s = Long.parseLong(parts[0]);
+			list.add(new Range(s, Long.parseLong(parts[1]) - s));
+			//			map.put(Long.parseLong(parts[0]), Long.parseLong(parts[1]));
+		}
+		
+		Collections.sort(list, new Comparator<Range>() {
+			
+			@Override
+			public int compare(Range o1, Range o2) {
+				int c = Long.compare(o1.start, o2.start);
+				if (c == 0) return Long.compare(o1.len, o2.len);
+				return c;
+			}
+		});
+		
+		int number = 0;
+		int index = 0;
+		for (int i = 0; i < list.size(); i++) {
+			Range r = list.get(i);
+			//			System.out.println(r + ",	" + number);
+			if (r.start <= number && r.end() > number) {
+				number += (r.len - (number - r.start - 1));
+				index = i;
+			}
+		}
+		
+		// a) answer was 23923783
+		System.out.println(number);
+		
+		int sum = 0;
+		long l = number;
+		while (l <= 4294967295l) {
+			boolean found = false;
+			for (int i = index; i < list.size(); i++) {
+				Range r = list.get(i);
+				if (l >= r.start && l <= r.end()) {
+					l = r.end() + 1;
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				System.out.println(l + "valid");
+				sum++;
+				l++;
+			}
+		}
+		System.out.println(sum);
+		// b) answer was 125, rank 880
+		
+		br.close();
+	}
 	
 	static class Day19_Elf {
 		Day19_Elf next;
