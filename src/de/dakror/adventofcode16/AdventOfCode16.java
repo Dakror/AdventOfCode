@@ -43,7 +43,7 @@ public class AdventOfCode16 {
 	static String path = "src\\de\\dakror\\adventofcode16\\";
 	
 	public static void main(String[] args) throws Exception {
-		Day20_a();
+		Day23_a();
 	}
 	
 	/////////////////////////////////////////////
@@ -52,18 +52,563 @@ public class AdventOfCode16 {
 		BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day.txt")));
 		String line = "";
 		
-		while ((line = br.readLine()) != null) {}
+		while ((line = br.readLine()) != null) {
+			
+		}
 		
 		br.close();
 	}
 	
 	/////////////////////////////////////////////
 	
-	static class Range {
+	public static void Day23_a() throws Exception {
+		BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day23.txt")));
+		String line = "";
+		
+		long a = 12, b = 0, c = 0, d = 0;
+		
+		ArrayList<String> code = new ArrayList<>();
+		while ((line = br.readLine()) != null) {
+			code.add(line);
+		}
+		
+		br.close();
+		int i = 0;
+		
+		while (i < code.size()) {
+			//			Thread.sleep(100);
+			//			System.out.println("a: " + a + "	b: " + b + "	c: " + c + "	d: " + d);
+			//			
+			//			for (int j = 0; j < code.size(); j++) {
+			//				System.out.println((i == j ? "> " : "  ") + code.get(j));
+			//			}
+			//			
+			//			System.out.println();
+			
+			
+			String[] parts = code.get(i).split(" ");
+			sw: switch (parts[0]) {
+				case "cpy": {
+					if (parts.length != 3) {
+						i++;
+						break;
+					}
+					long val = 0;
+					switch (parts[1]) {
+						case "a":
+							val = a;
+							break;
+						case "b":
+							val = b;
+							break;
+						case "c":
+							val = c;
+							break;
+						case "d":
+							val = d;
+							break;
+						default:
+							val = Integer.parseInt(parts[1]);
+					}
+					switch (parts[2]) {
+						case "a":
+							a = val;
+							break;
+						case "b":
+							b = val;
+							break;
+						case "c":
+							c = val;
+							break;
+						case "d":
+							d = val;
+							break;
+					}
+					i++;
+					break;
+				}
+				case "inc": {
+					if (parts.length != 2) {
+						i++;
+						break;
+					}
+					switch (parts[1]) {
+						case "a":
+							a++;
+							break;
+						case "b":
+							b++;
+							break;
+						case "c":
+							c++;
+							break;
+						case "d":
+							d++;
+							break;
+					}
+					i++;
+					break;
+				}
+				case "dec": {
+					if (parts.length != 2) {
+						i++;
+						break;
+					}
+					
+					switch (parts[1]) {
+						case "a":
+							a--;
+							break;
+						case "b":
+							b--;
+							break;
+						case "c":
+							c--;
+							break;
+						case "d":
+							d--;
+							break;
+					}
+					i++;
+					break;
+				}
+				case "jnz": {
+					if (parts.length != 3) {
+						i++;
+						break;
+					}
+					
+					long val = 0;
+					switch (parts[1]) {
+						case "a":
+							val = a;
+							break;
+						case "b":
+							val = b;
+							break;
+						case "c":
+							val = c;
+							break;
+						case "d":
+							val = d;
+							break;
+						default:
+							val = Integer.parseInt(parts[1]);
+					}
+					
+					if (val != 0) {
+						long steps = 0;
+						switch (parts[2]) {
+							case "a":
+								steps = a;
+								break;
+							case "b":
+								steps = b;
+								break;
+							case "c":
+								steps = c;
+								break;
+							case "d":
+								steps = d;
+								break;
+							default:
+								steps = Integer.parseInt(parts[2]);
+						}
+						i += steps;
+					} else {
+						i++;
+					}
+					break;
+				}
+				case "tgl": {
+					long val = 0;
+					switch (parts[1]) {
+						case "a":
+							val = a;
+							break;
+						case "b":
+							val = b;
+							break;
+						case "c":
+							val = c;
+							break;
+						case "d":
+							val = d;
+							break;
+						default:
+							val = Integer.parseInt(parts[1]);
+					}
+					
+					if (i + val < 0 || i + val >= code.size()) {
+						i++;
+						break;
+					}
+					
+					String l = code.get((int) (i + val));
+					
+					String m = l;
+					if (l.split(" ").length == 2) {
+						if (l.startsWith("inc")) l = l.replace("inc", "dec");
+						else l = "inc" + l.substring(l.indexOf(" "));
+					} else {
+						if (l.startsWith("jnz")) l = l.replace("jnz", "cpy");
+						else l = "jnz" + l.substring(l.indexOf(" "));
+					}
+					
+					code.set((int) (i + val), l);
+					i++;
+					break;
+				}
+				case "mul": {
+					if (parts.length != 4) {
+						i++;
+						break;
+					}
+					
+					long val = 0;
+					switch (parts[2]) {
+						case "a":
+							val = a;
+							break;
+						case "b":
+							val = b;
+							break;
+						case "c":
+							val = c;
+							break;
+						case "d":
+							val = d;
+							break;
+						default:
+							val = Integer.parseInt(parts[2]);
+					}
+					
+					switch (parts[3]) {
+						case "a":
+							val *= a;
+							break;
+						case "b":
+							val *= b;
+							break;
+						case "c":
+							val *= c;
+							break;
+						case "d":
+							val *= d;
+							break;
+						default:
+							val *= Integer.parseInt(parts[1]);
+					}
+					
+					switch (parts[1]) {
+						case "a":
+							a = val;
+							break;
+						case "b":
+							b = val;
+							break;
+						case "c":
+							c = val;
+							break;
+						case "d":
+							d = val;
+							break;
+					}
+					
+					i++;
+					break;
+				}
+				default:
+					i++;
+			}
+		}
+		
+		System.out.println(a);
+		// a) answer was 12000
+		// b) answer was 479008560, rank 990
+	}
+	
+	static class Day22_Node {
+		int x, y, size, used, avail, usage;
+		
+		public Day22_Node(int x, int y, int size, int used, int avail, int usage) {
+			this.x = x;
+			this.y = y;
+			this.size = size;
+			this.used = used;
+			this.avail = avail;
+			this.usage = usage;
+		}
+		
+		@Override
+		public String toString() {
+			return "/dev/grid/node-x" + x + "-y" + y + "	" + size + "T	" + used + "T	" + avail + "T	" + usage + "%";
+		}
+	}
+	
+	static class Day22_State {
+		int i, x, y, gx, gy, num;
+		
+		Day22_State prev;
+		
+		public Day22_State(int i, int x, int y, int gx, int gy, int num) {
+			this.i = i;
+			this.x = x;
+			this.y = y;
+			this.gx = gx;
+			this.gy = gy;
+			this.num = num;
+		}
+		
+		@Override
+		public String toString() {
+			return x + ":" + y + ":" + gx + ":" + gy;
+		}
+	}
+	
+	public static void Day22_ab() throws Exception {
+		BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day22.txt")));
+		String line = "";
+		
+		Pattern p = Pattern.compile("/dev/grid/node-x([0-9]+)-y([0-9]+) +([0-9]+)T +([0-9]+)T +([0-9]+)T +([0-9]+)%");
+		
+		int w = 35, h = 29;
+		
+		Day22_Node[] grid = new Day22_Node[w * h];
+		
+		while ((line = br.readLine()) != null) {
+			Matcher m = p.matcher(line);
+			if (m.matches()) {
+				int x = Integer.parseInt(m.group(1)), y = Integer.parseInt(m.group(2));
+				grid[y * w + x] = new Day22_Node(x, y, Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)), Integer.parseInt(m.group(5)), Integer.parseInt(m.group(6)));
+			}
+		}
+		br.close();
+		
+		int pairs = 0;
+		for (int i = 0; i < grid.length; i++) {
+			for (int j = 0; j < grid.length; j++) {
+				if (i == j) continue;
+				if (grid[i].used == 0) continue;
+				
+				if (grid[i].used <= grid[j].avail) pairs++;
+			}
+		}
+		
+		System.out.println("a) " + pairs);
+		System.out.println();
+		// a) answer was 981
+		
+		//// b part ////
+		
+		
+		// 269 is too high
+		// (thought it was 74 + 39 * 5) 
+		
+		
+		LinkedList<Day22_State> queue = new LinkedList<>();
+		HashSet<String> visited = new HashSet<>();
+		
+		for (int i = 0; i < grid.length; i++) {
+			Day22_State s = new Day22_State(i, i % w, i / w, w - 1, 0, 0);
+			if (grid[i].used == 0) {
+				visited.add(s.toString());
+				queue.add(s);
+			}
+		}
+		
+		
+		Day22_State finish = null;
+		while (queue.size() > 0) {
+			Day22_State s = queue.pop();
+			
+			
+			if (s.x == s.gx - 1 && s.y == 0) {
+				//				System.out.println("WOHOOOO: " + s.num + " steps");
+				//				break;
+				//				s.gx--;
+				//				s.x++;
+				//				s.i++;
+				//				s.num++;
+				Day22_State q = new Day22_State(s.i + 1, s.x + 1, s.y, s.gx - 1, s.gy, s.num + 1);
+				q.prev = s;
+				if (!visited.contains(q.toString())) {
+					queue.add(q);
+					visited.add(q.toString());
+					continue;
+				}
+			}
+			
+			if (s.gx == 0) {
+				System.out.println("WOHOOOO: " + s.num + " steps");
+				// b) answer was 233 steps
+				finish = s;
+				break;
+			}
+			
+			for (int i = -1; i < 2; i++) {
+				for (int j = -1; j < 2; j++) {
+					if (i * i + j * j != 1) continue;
+					
+					int x = s.x + i;
+					if (x < 0 || x >= w) continue;
+					int y = s.y + j;
+					if (y < 0 || y >= h) continue;
+					
+					if (x == s.gx && y == s.gy) continue;
+					
+					Day22_Node n = grid[y * w + x];
+					if (n.size > 200) continue;
+					
+					Day22_State q = new Day22_State(y * w + x, x, y, s.gx, s.gy, s.num + 1);
+					q.prev = s;
+					if (!visited.contains(q.toString())) {
+						queue.add(q);
+						visited.add(q.toString());
+					}
+				}
+			}
+		}
+		
+		String s = "";
+		
+		while (finish != null) {
+			String q = "";
+			for (int i = 0; i < grid.length; i++) {
+				q += ((i == 0 ? "(" : (i == finish.gy * w + finish.gx ? "[" : " ")) + (i == finish.i ? "_" : (grid[i].size > 200 ? "#" : ".")) + //
+						(i == 0 ? ")" : (i == finish.gy * w + finish.gx ? "]" : " ")) + (i % w == w - 1 ? "\n" : ""));
+			}
+			s = q + "\n" + s;
+			
+			finish = finish.prev;
+		}
+		//		System.out.println(s);
+		
+	}
+	
+	public static void Day21_b() throws Exception {
+		Day21_rec("", "abcdefgh");
+		
+		// brute force recursion with 8! , answer was bacdefgh
+	}
+	
+	// all permutations of abcdefgh
+	static void Day21_rec(String prefix, String str) throws Exception {
+		int n = str.length();
+		if (n == 0) {
+			if (Day21_a(prefix).equals("fbgdceah")) {
+				System.out.println(prefix);
+				System.exit(0);
+			}
+		} else {
+			for (int i = 0; i < n; i++)
+				Day21_rec(prefix + str.charAt(i), str.substring(0, i) + str.substring(i + 1, n));
+		}
+	}
+	
+	public static String Day21_a(String s) throws Exception {
+		BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day21.txt")));
+		String line = "";
+		
+		s = s == null ? "abcdefgh" : s;
+		
+		while ((line = br.readLine()) != null) {
+			String[] parts = line.split(" ");
+			
+			switch (parts[0]) {
+				case "swap": {
+					switch (parts[1]) {
+						case "position": {
+							char[] c = s.toCharArray();
+							int i = Integer.parseInt(parts[2]), j = Integer.parseInt(parts[5]);
+							char t = c[i];
+							c[i] = c[j];
+							c[j] = t;
+							s = new String(c);
+							break;
+						}
+						case "letter": {
+							s = s.replace(parts[2], "%").replace(parts[5], parts[2]).replace("%", parts[5]);
+							break;
+						}
+					}
+					
+					break;
+				}
+				case "rotate": {
+					switch (parts[1]) {
+						case "based": {
+							int i = s.indexOf(parts[6]);
+							if (i > -1) {
+								if (i >= 4) i++;
+								i++;
+								
+								i %= s.length();
+								s = s.substring(s.length() - i) + s.substring(0, s.length() - i);
+							}
+							break;
+						}
+						case "left": {
+							int i = Integer.parseInt(parts[2]) % s.length();
+							if (i > 0) {
+								s = s.substring(i) + s.substring(0, i);
+							}
+							break;
+						}
+						case "right": {
+							int i = Integer.parseInt(parts[2]) % s.length();
+							if (i > 0) {
+								s = s.substring(s.length() - i) + s.substring(0, s.length() - i);
+							}
+							break;
+						}
+					}
+					break;
+				}
+				case "reverse": {
+					char[] c = s.toCharArray();
+					int x = Integer.parseInt(parts[2]), y = Integer.parseInt(parts[4]);
+					for (int i = x; i <= (y + x) / 2; i++) {
+						int j = y - i + x;
+						if (i == j) continue;
+						char t = c[i];
+						c[i] = c[j];
+						c[j] = t;
+					}
+					s = new String(c);
+					break;
+				}
+				case "move": {
+					ArrayList<Character> c = new ArrayList<>();
+					for (char c1 : s.toCharArray())
+						c.add(c1);
+					
+					int i = Integer.parseInt(parts[2]), j = Integer.parseInt(parts[5]);
+					
+					c.add(j, c.remove(i));
+					
+					char[] d = new char[c.size()];
+					for (int x = 0; x < c.size(); x++)
+						d[x] = c.get(x);
+					s = new String(d);
+					
+					break;
+				}
+			}
+		}
+		
+		//		System.out.println("result: " + s);
+		// a) answer was cbeghdaf
+		
+		br.close();
+		return s;
+	}
+	
+	static class Day20_Range {
 		long len;
 		long start;
 		
-		public Range(long start, long len) {
+		public Day20_Range(long start, long len) {
 			this.start = start;
 			this.len = len;
 		}
@@ -78,23 +623,23 @@ public class AdventOfCode16 {
 		}
 	}
 	
-	public static void Day20_a() throws Exception {
+	public static void Day20_ab() throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day20.txt")));
 		String line = "";
 		
-		ArrayList<Range> list = new ArrayList<>();
+		ArrayList<Day20_Range> list = new ArrayList<>();
 		
 		while ((line = br.readLine()) != null) {
 			String[] parts = line.split("-");
 			long s = Long.parseLong(parts[0]);
-			list.add(new Range(s, Long.parseLong(parts[1]) - s));
+			list.add(new Day20_Range(s, Long.parseLong(parts[1]) - s));
 			//			map.put(Long.parseLong(parts[0]), Long.parseLong(parts[1]));
 		}
 		
-		Collections.sort(list, new Comparator<Range>() {
+		Collections.sort(list, new Comparator<Day20_Range>() {
 			
 			@Override
-			public int compare(Range o1, Range o2) {
+			public int compare(Day20_Range o1, Day20_Range o2) {
 				int c = Long.compare(o1.start, o2.start);
 				if (c == 0) return Long.compare(o1.len, o2.len);
 				return c;
@@ -104,7 +649,7 @@ public class AdventOfCode16 {
 		int number = 0;
 		int index = 0;
 		for (int i = 0; i < list.size(); i++) {
-			Range r = list.get(i);
+			Day20_Range r = list.get(i);
 			//			System.out.println(r + ",	" + number);
 			if (r.start <= number && r.end() > number) {
 				number += (r.len - (number - r.start - 1));
@@ -120,7 +665,7 @@ public class AdventOfCode16 {
 		while (l <= 4294967295l) {
 			boolean found = false;
 			for (int i = index; i < list.size(); i++) {
-				Range r = list.get(i);
+				Day20_Range r = list.get(i);
 				if (l >= r.start && l <= r.end()) {
 					l = r.end() + 1;
 					found = true;
