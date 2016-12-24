@@ -43,7 +43,7 @@ public class AdventOfCode16 {
 	static String path = "src\\de\\dakror\\adventofcode16\\";
 	
 	public static void main(String[] args) throws Exception {
-		Day23_a();
+		Day24_a();
 	}
 	
 	/////////////////////////////////////////////
@@ -61,7 +61,94 @@ public class AdventOfCode16 {
 	
 	/////////////////////////////////////////////
 	
-	public static void Day23_a() throws Exception {
+	static class Day24_State {
+		ArrayList<Point> targets;
+		
+		int x, y, num;
+		
+		Day24_State prev;
+		
+		public Day24_State(int x, int y, Day24_State prev) {
+			this.x = x;
+			this.y = y;
+			this.prev = prev;
+			if (prev != null) {
+				num = prev.num + 1;
+				targets = new ArrayList<>();
+				for (Point p : prev.targets) {
+					if (p.x != x || p.y != y) targets.add(p);
+				}
+			}
+		}
+		
+		@Override
+		public String toString() {
+			return x + ":" + y + ":" + targets.toString();
+		}
+	}
+	
+	public static void Day24_a() throws Exception {
+		BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day24.txt")));
+		String line = "";
+		
+		ArrayList<Point> targets = new ArrayList<>();
+		// y x
+		boolean[][] map = new boolean[39][185];
+		
+		Point start = null;
+		
+		int ind = 0;
+		while ((line = br.readLine()) != null) {
+			for (int i = 0; i < 185; i++) {
+				char c = line.charAt(i);
+				if (c != '#') {
+					map[ind][i] = true;
+					if (c == '0') start = new Point(i, ind);
+					else if (c != '.') targets.add(new Point(i, ind));
+				}
+			}
+			ind++;
+		}
+		br.close();
+		
+		LinkedList<Day24_State> queue = new LinkedList<>();
+		HashSet<String> visited = new HashSet<>();
+		
+		Day24_State st = new Day24_State(start.x, start.y, null);
+		st.targets = targets;
+		queue.add(st);
+		visited.add(st.toString());
+		
+		while (queue.size() > 0) {
+			Day24_State s = queue.pop();
+			
+			if (s.targets.size() == 0 && s.x == start.x && s.y == start.y /* b */) {
+				System.out.println("a) " + s.num + " steps");
+				// a) answer was 448, rank 338
+				// b) answer was 672, rank 327
+				break;
+			}
+			
+			for (int i = -1; i < 2; i++) {
+				for (int j = -1; j < 2; j++) {
+					if (i * i + j * j != 1) continue;
+					
+					int x = s.x + i;
+					int y = s.y + j;
+					if (x < 0 || y < 0 || x >= 185 || y >= 39) continue;
+					if (!map[y][x]) continue;
+					
+					Day24_State q = new Day24_State(x, y, s);
+					if (!visited.contains(q.toString())) {
+						queue.add(q);
+						visited.add(q.toString());
+					}
+				}
+			}
+		}
+	}
+	
+	public static void Day23_ab() throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day23.txt")));
 		String line = "";
 		
