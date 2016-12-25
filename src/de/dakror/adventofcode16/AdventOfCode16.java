@@ -18,8 +18,10 @@ package de.dakror.adventofcode16;
 
 import java.awt.Point;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -43,7 +45,7 @@ public class AdventOfCode16 {
 	static String path = "src\\de\\dakror\\adventofcode16\\";
 	
 	public static void main(String[] args) throws Exception {
-		Day24_a();
+		Day25_a();
 	}
 	
 	/////////////////////////////////////////////
@@ -60,6 +62,258 @@ public class AdventOfCode16 {
 	}
 	
 	/////////////////////////////////////////////
+	
+	public static void Day25_a() throws Exception {
+		BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day25.txt")));
+		String line = "";
+		
+		long a = 0, b = 0, c = 0, d = 0;
+		
+		ArrayList<String> code = new ArrayList<>();
+		while ((line = br.readLine()) != null) {
+			code.add(line);
+		}
+		
+		
+		br.close();
+		
+		String output = "";
+		
+		BufferedWriter bw = new BufferedWriter(new FileWriter(new File("data.txt")));
+		
+		for (int ind = 0;; ind++) {
+			if (output.equals("010101010101")) {
+				System.out.println(ind);
+				return;
+			} else if (output.length() > 0/* && ind % 50 == 0*/) {
+				//				int inv = ~Integer.parseInt(output, 2) & 0x1FFF;
+				//				String s1 = Integer.toBinaryString(inv);
+				//				while (s1.length() < 12)
+				//					s1 = "0" + s1;
+				//				bw.write(Integer.parseInt(output, 2) + "\n");
+				//				bw.flush();
+				
+				System.out.println(ind + ":	" + output + ":	" + Integer.parseInt(output, 2) + ":	" + Integer.parseInt(new StringBuilder(output).reverse().toString(), 2));
+				//				System.out.println(/*ind + ":		" + output + ":	" +/ Integer.parseInt(output, 2)/* + ",	" + inv + "	" + s1/);
+			}
+			int i = 0;
+			a = ind;
+			output = "";
+			
+			Thread.sleep(50);
+			
+			
+			// i noticed the pattern, the output is the reversed binary representation of the number 2541 + ind
+			// needed is 010101010101, so reversed 101010101010 = 2730. 2730 - 2541 = 189,
+			// answer was 189, rank 799
+			
+			
+			loop: while (i < code.size()) {
+				//			Thread.sleep(1000);
+				//			
+				//			for (int j = 0; j < code.size(); j++) {
+				//				String s = (i == j ? "> " : "  ") + code.get(j);
+				//				if (i == j) {
+				//					while (s.length() < 30)
+				//						s += " ";
+				//				}
+				//				System.out.println(s + (i == j ? "a: " + a + "	b: " + b + "	c: " + c + "	d: " + d : ""));
+				//			}
+				//			
+				//			System.out.println();
+				
+				String[] parts = code.get(i).split(" ");
+				switch (parts[0]) {
+					case "break": {
+						throw new RuntimeException();
+					}
+					case "cpy": {
+						long val = 0;
+						switch (parts[1]) {
+							case "a":
+								val = a;
+								break;
+							case "b":
+								val = b;
+								break;
+							case "c":
+								val = c;
+								break;
+							case "d":
+								val = d;
+								break;
+							default:
+								val = Integer.parseInt(parts[1]);
+						}
+						switch (parts[2]) {
+							case "a":
+								a = val;
+								break;
+							case "b":
+								b = val;
+								break;
+							case "c":
+								c = val;
+								break;
+							case "d":
+								d = val;
+								break;
+						}
+						i++;
+						break;
+					}
+					case "mov": {
+						long val = 0;
+						switch (parts[1]) {
+							case "a":
+								val = a;
+								a = 0;
+								break;
+							case "b":
+								val = b;
+								b = 0;
+								break;
+							case "c":
+								val = c;
+								c = 0;
+								break;
+							case "d":
+								val = d;
+								d = 0;
+								break;
+							default:
+								val = Integer.parseInt(parts[1]);
+								
+						}
+						switch (parts[2]) {
+							case "a":
+								a += val;
+								break;
+							case "b":
+								b += val;
+								break;
+							case "c":
+								c += val;
+								break;
+							case "d":
+								d += val;
+								break;
+						}
+						i++;
+						break;
+					}
+					case "inc": {
+						if (parts.length != 2) {
+							i++;
+							break;
+						}
+						switch (parts[1]) {
+							case "a":
+								a++;
+								break;
+							case "b":
+								b++;
+								break;
+							case "c":
+								c++;
+								break;
+							case "d":
+								d++;
+								break;
+						}
+						i++;
+						break;
+					}
+					case "dec": {
+						switch (parts[1]) {
+							case "a":
+								a--;
+								break;
+							case "b":
+								b--;
+								break;
+							case "c":
+								c--;
+								break;
+							case "d":
+								d--;
+								break;
+						}
+						i++;
+						break;
+					}
+					case "jnz": {
+						long val = 0;
+						switch (parts[1]) {
+							case "a":
+								val = a;
+								break;
+							case "b":
+								val = b;
+								break;
+							case "c":
+								val = c;
+								break;
+							case "d":
+								val = d;
+								break;
+							default:
+								val = Integer.parseInt(parts[1]);
+						}
+						
+						if (val != 0) {
+							long steps = 0;
+							switch (parts[2]) {
+								case "a":
+									steps = a;
+									break;
+								case "b":
+									steps = b;
+									break;
+								case "c":
+									steps = c;
+									break;
+								case "d":
+									steps = d;
+									break;
+								default:
+									steps = Integer.parseInt(parts[2]);
+							}
+							i += steps;
+						} else {
+							i++;
+						}
+						break;
+					}
+					case "out":
+						long val = 0;
+						switch (parts[1]) {
+							case "a":
+								val = a;
+								break;
+							case "b":
+								val = b;
+								break;
+							case "c":
+								val = c;
+								break;
+							case "d":
+								val = d;
+								break;
+							default:
+								val = Integer.parseInt(parts[1]);
+						}
+						output += val;
+						if (output.length() >= 12) break loop;
+						//					System.out.print(val);
+						i++;
+						break;
+					default:
+						i++;
+				}
+			}
+		}
+	}
 	
 	static class Day24_State {
 		ArrayList<Point> targets;
@@ -87,7 +341,7 @@ public class AdventOfCode16 {
 		}
 	}
 	
-	public static void Day24_a() throws Exception {
+	public static void Day24_ab() throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day24.txt")));
 		String line = "";
 		
