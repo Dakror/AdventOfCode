@@ -1,3 +1,3 @@
 CFLAGS=-g
 all: aoc
-aoc: aoc.c day1.S
+aoc: aoc.c day1.S day2.S
