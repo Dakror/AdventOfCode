@@ -74,13 +74,6 @@ day2_b:
 				add r8, r7, r6
 				ldrh r12, [r0, r8]
 
-				@push {r0-r3,r12}
-				@ldr r0, =string2
-				@mov r1, r5
-				@mov r2, r12
-				@bl printf
-				@pop {r0-r3,r12}
-				
 				cmp r12, r5
 				addeq r3, r3, #1
 				beq b_loop
@@ -117,17 +110,3 @@ day2_b:
 	b_end:
 		mov r0, r3
 		pop {r4-r8, pc}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
