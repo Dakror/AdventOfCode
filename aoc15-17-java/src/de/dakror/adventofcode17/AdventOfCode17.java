@@ -21,122 +21,155 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Maximilian Stark | Dakror
  */
 public class AdventOfCode17 {
-	static String path = "src\\de\\dakror\\adventofcode17\\";
-	
-	public static void main(String[] args) {
-		Day4_b();
-	}
-	
-	static int getSurroundings(HashMap<String, Integer> grid, int x, int y) {
-		int sum = 0;
-		for (int i = -1; i < 2; i++) {
-			for (int j = -1; j < 2; j++) {
-				int g = grid.getOrDefault((x + i) + ":" + (y + j), -1);
-				if (g > -1) sum += g;
-			}
-		}
-		
-		return sum;
-	}
-	
-	static void Day3_b() {
-		// Answer was 295229
-		
-		int input = 289326;
-		
-		HashMap<String, Integer> grid = new HashMap<>();
-		int x = 0, y = 0, rad = 1;
-		grid.put("0:0", 1);
-		for (;;) {
-			// right
-			x++;
-			int num = getSurroundings(grid, x, y);
-			if (num >= input) {
-				System.out.println(num);
-				return;
-			}
-			grid.put(x + ":" + y, num);
-			
-			for (int k = 0; k < rad * 2 - 1; k++) {
-				y++;
-				
-				num = getSurroundings(grid, x, y);
-				if (num >= input) {
-					System.out.println(num);
-					return;
-				}
-				grid.put(x + ":" + y, num);
-			}
-			for (int k = 0; k < rad * 2; k++) {
-				x--;
-				
-				num = getSurroundings(grid, x, y);
-				if (num >= input) {
-					System.out.println(num);
-					return;
-				}
-				grid.put(x + ":" + y, num);
-			}
-			
-			for (int k = 0; k < rad * 2; k++) {
-				y--;
-				
-				num = getSurroundings(grid, x, y);
-				if (num >= input) {
-					System.out.println(num);
-					return;
-				}
-				grid.put(x + ":" + y, num);
-			}
-			
-			for (int k = 0; k < rad * 2; k++) {
-				x++;
-				
-				num = getSurroundings(grid, x, y);
-				if (num >= input) {
-					System.out.println(num);
-					return;
-				}
-				grid.put(x + ":" + y, num);
-			}
-			
-			rad++;
-		}
-	}
-	
-	static void Day4_a() {
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day4.txt")));
-			System.out.println(br.lines().mapToInt(x -> {
-				if (x.trim().length() == 0) return 0;
-				String[] s = x.split(" ");
-				return Arrays.stream(s).distinct().count() == s.length ? 1 : 0;
-			}).sum());
-			// 451
-			br.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	static void Day4_b() {
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day4.txt")));
-			System.out.println(br.lines().mapToInt(x -> {
-				String[] s = x.split(" ");
-				return s.length == Arrays.stream(s).map(y -> (String) y.codePoints().sorted().collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append).toString()).distinct().count() ? 1 : 0;
-			}).sum());
-			// 451
-			br.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    static String path = "src\\de\\dakror\\adventofcode17\\";
+
+    public static void main(String[] args) {
+        Day5_b();
+    }
+
+    static int getSurroundings(HashMap<String, Integer> grid, int x, int y) {
+        int sum = 0;
+        for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                int g = grid.getOrDefault((x + i) + ":" + (y + j), -1);
+                if (g > -1) sum += g;
+            }
+        }
+
+        return sum;
+    }
+
+    static void Day3_b() {
+        // Answer was 295229
+
+        int input = 289326;
+
+        HashMap<String, Integer> grid = new HashMap<>();
+        int x = 0, y = 0, rad = 1;
+        grid.put("0:0", 1);
+        for (;;) {
+            // right
+            x++;
+            int num = getSurroundings(grid, x, y);
+            if (num >= input) {
+                System.out.println(num);
+                return;
+            }
+            grid.put(x + ":" + y, num);
+
+            for (int k = 0; k < rad * 2 - 1; k++) {
+                y++;
+
+                num = getSurroundings(grid, x, y);
+                if (num >= input) {
+                    System.out.println(num);
+                    return;
+                }
+                grid.put(x + ":" + y, num);
+            }
+            for (int k = 0; k < rad * 2; k++) {
+                x--;
+
+                num = getSurroundings(grid, x, y);
+                if (num >= input) {
+                    System.out.println(num);
+                    return;
+                }
+                grid.put(x + ":" + y, num);
+            }
+
+            for (int k = 0; k < rad * 2; k++) {
+                y--;
+
+                num = getSurroundings(grid, x, y);
+                if (num >= input) {
+                    System.out.println(num);
+                    return;
+                }
+                grid.put(x + ":" + y, num);
+            }
+
+            for (int k = 0; k < rad * 2; k++) {
+                x++;
+
+                num = getSurroundings(grid, x, y);
+                if (num >= input) {
+                    System.out.println(num);
+                    return;
+                }
+                grid.put(x + ":" + y, num);
+            }
+
+            rad++;
+        }
+    }
+
+    static void Day4_a() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day4.txt")));
+            System.out.println(br.lines().mapToInt(x -> {
+                if (x.trim().length() == 0) return 0;
+                String[] s = x.split(" ");
+                return Arrays.stream(s).distinct().count() == s.length ? 1 : 0;
+            }).sum());
+            // 451
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void Day4_b() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day4.txt")));
+            System.out.println(br.lines().mapToInt(x -> {
+                String[] s = x.split(" ");
+                return s.length == Arrays.stream(s).map(y -> y.codePoints().sorted().collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append).toString()).distinct().count() ? 1 : 0;
+            }).sum());
+            // 451
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void Day5_a() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day5.txt")));
+            int[] arr = br.lines().mapToInt(Integer::parseInt).toArray();
+            int i = 0;
+            for (int j = 0; j >= 0 && j < arr.length; i++) {
+                j += arr[j]++;
+            }
+            System.out.println(i);
+            // 373543
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void Day5_b() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day5.txt")));
+            int[] arr = br.lines().mapToInt(Integer::parseInt).toArray();
+            int i = 0;
+            for (int j = 0; j >= 0 && j < arr.length; i++) {
+                int o = arr[j];
+                if (o >= 3) arr[j]--;
+                else arr[j]++;
+                j += o;
+            }
+            System.out.println(i);
+            // 27502966
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
