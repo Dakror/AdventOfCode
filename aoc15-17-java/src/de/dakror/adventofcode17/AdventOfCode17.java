@@ -19,6 +19,7 @@ package de.dakror.adventofcode17;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,7 +36,7 @@ public class AdventOfCode17 {
 
     static void Day6_b() {
         int[] buf = { 5, 1, 10, 0, 1, 7, 13, 14, 3, 12, 8, 10, 7, 12, 0, 6 };
-        HashSet<String> seen = new HashSet<String>();
+        ArrayList<String> seen = new ArrayList<String>();
         int i = 0;
         while (true) {
             int max = 0, k = 0;
@@ -45,30 +46,23 @@ public class AdventOfCode17 {
                     k = j;
                 }
             }
-            if (!seen.add(Arrays.toString(buf))) {
-                int l = 0;
-                String str = Arrays.toString(buf);
-                for (String s : seen) {
-                    if (s.equals(str)) {
-                        System.out.println(i - l - 1);
-                        return;
-                    }
-                    l++;
-                }
-                break;
+
+            String str = Arrays.toString(buf);
+            int index = seen.indexOf(str);
+            if (index > -1) {
+                System.out.println(i - index);
+                // 1086
+                return;
             }
+            seen.add(str);
 
             buf[k] = 0;
             for (int j = 0; j < max; j++) {
                 buf[(k + j + 1) % buf.length]++;
             }
 
-            System.out.println(Arrays.toString(buf));
-
             i++;
         }
-        System.out.println(i + "");
-        // 5042
     }
 
     static void Day6_a() {
