@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map.Entry;
 
 /**
  * @author Maximilian Stark | Dakror
@@ -31,7 +32,149 @@ public class AdventOfCode17 {
     static String path = "src\\de\\dakror\\adventofcode17\\";
 
     public static void main(String[] args) {
-        Day6_b();
+        Day8();
+    }
+
+    static int Day8_max = 0;
+
+    static void Day8() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day8.txt")));
+
+            HashMap<String, Integer> registers = new HashMap<String, Integer>();
+
+            br.lines().forEach(x -> {
+                String[] p = x.trim().split(" ");
+                int v = registers.getOrDefault(p[4], 0);
+                boolean okay = false;
+                switch (p[5]) {
+                case ">":
+                    if (v > Integer.parseInt(p[6])) okay = true;
+                    break;
+                case "<":
+                    if (v < Integer.parseInt(p[6])) okay = true;
+                    break;
+                case ">=":
+                    if (v >= Integer.parseInt(p[6])) okay = true;
+                    break;
+                case "<=":
+                    if (v <= Integer.parseInt(p[6])) okay = true;
+                    break;
+                case "!=":
+                    if (v != Integer.parseInt(p[6])) okay = true;
+                    break;
+                case "==":
+                    if (v == Integer.parseInt(p[6])) okay = true;
+                    break;
+                }
+                if (okay) {
+                    int newVal = registers.getOrDefault(p[0], 0) + (p[1].equals("dec") ? -1 : 1) * Integer.parseInt(p[2]);
+                    if (newVal > Day8_max) Day8_max = newVal;
+                    registers.put(p[0], newVal);
+                }
+            });
+            br.close();
+
+            int max = 0;
+            for (Entry<String, Integer> e : registers.entrySet()) {
+                if (e.getValue() > max) max = e.getValue();
+            }
+
+            System.out.println(max);
+            // 4832
+            System.out.println(Day8_max);
+            // 5443
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static HashMap<String, Integer> Day7_nodes = new HashMap<String, Integer>();
+    static HashMap<String, Integer> Day7_weights = new HashMap<String, Integer>();
+    static HashMap<String, String[]> Day7_trees = new HashMap<String, String[]>();
+
+    static void Day7_b() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day7.txt")));
+
+            br.lines().forEach(x -> {
+                String[] a = x.split("->");
+                String[] ax = a[0].trim().split(" ");
+                Day7_nodes.put(ax[0].trim(), Integer.parseInt(ax[1].substring(1, ax[1].length() - 1)));
+                if (a.length > 1) {
+                    Day7_trees.put(ax[0].trim(), a[1].trim().split(", "));
+                }
+            });
+            br.close();
+
+            Day7_b_calculateWeight("mkxke");
+
+            // 268
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static int Day7_b_calculateWeight(String node) {
+        String[] children = Day7_trees.get(node);
+        int myWeight = Day7_nodes.get(node);
+        if (children == null) return myWeight;
+
+        HashMap<Integer, ArrayList<String>> weights = new HashMap<Integer, ArrayList<String>>();
+        for (String s : children) {
+            int weight = Day7_b_calculateWeight(s);
+
+            ArrayList<String> r = weights.getOrDefault(weight, new ArrayList<>());
+            r.add(s);
+            weights.put(weight, r);
+        }
+
+        if (weights.size() > 1) {
+            int anyWeight = 0;
+            boolean err = false;
+            String errName = null;
+            int errWeight = 0;
+            for (Entry<Integer, ArrayList<String>> e : weights.entrySet()) {
+                if (e.getValue().size() == 1) {
+                    err = true;
+                    errName = e.getValue().get(0);
+                    errWeight = e.getKey();
+                } else {
+                    anyWeight = e.getKey();
+                }
+            }
+            if (err) {
+                System.out.println("Alarm! " + errName + " has a different weight. Wanted " + anyWeight + ", got " + errWeight + ". " + errName + " weighs " + Day7_nodes.get(errName));
+                return 0;
+            }
+        }
+
+        return myWeight + children.length * weights.entrySet().iterator().next().getKey();
+    }
+
+    static void Day7_a() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day7.txt")));
+            HashSet<String> left = new HashSet<String>();
+            HashSet<String> right = new HashSet<String>();
+
+            br.lines().forEach(x -> {
+                String[] a = x.split("->");
+                left.add(a[0].substring(0, a[0].indexOf(" ")));
+                if (a.length > 1) {
+                    String[] b = a[1].trim().split(", ");
+                    for (String s : b)
+                        right.add(s);
+                }
+            });
+
+            left.removeAll(right);
+            System.out.println(left);
+
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     static void Day6_b() {
