@@ -32,7 +32,188 @@ public class AdventOfCode17 {
     static String path = "src\\de\\dakror\\adventofcode17\\";
 
     public static void main(String[] args) {
-        Day8();
+        Day11();
+    }
+
+    static void Day11() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day11.txt")));
+
+            int x = 0, y = 0, z = 0;
+            int max = 0;
+            String[] sp = br.readLine().split(",");
+            for (String s : sp) {
+                switch (s) {
+                case "n": {
+                    y++;
+                    z--;
+                    break;
+                }
+                case "nw": {
+                    x--;
+                    y++;
+                    break;
+                }
+                case "ne": {
+                    x++;
+                    z--;
+                    break;
+                }
+                case "sw": {
+                    x--;
+                    z++;
+                    break;
+                }
+                case "se": {
+                    x++;
+                    y--;
+                    break;
+                }
+                case "s": {
+                    y--;
+                    z++;
+                    break;
+                }
+                }
+
+                int dist = (Math.abs(x) + Math.abs(y) + Math.abs(z)) / 2;
+                if (dist > max) max = dist;
+            }
+
+            System.out.println((Math.abs(x) + Math.abs(y) + Math.abs(z)) / 2);
+            System.out.println(max);
+            // 743
+            // 1493
+            // thanks to https://www.redblobgames.com/grids/hexagons/
+
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void Day10_b() {
+        int[] slots = new int[256];
+        for (int i = 0; i < slots.length; i++)
+            slots[i] = i;
+
+        String len = "130,126,1,11,140,2,255,207,18,254,246,164,29,104,0,224";
+        int[] leng = len.chars().toArray();
+
+        int[] lengths = new int[leng.length + 5];
+        System.arraycopy(leng, 0, lengths, 0, leng.length);
+        System.arraycopy(new int[] { 17, 31, 73, 47, 23 }, 0, lengths, lengths.length - 5, 5);
+
+        int skip = 0;
+        int pos = 0;
+        for (int k = 0; k < 64; k++) {
+            for (int i = 0; i < lengths.length; i++) {
+                // reverse list
+                int le = lengths[i];
+                for (int j = 0; j < le / 2; j++) {
+                    int pa = (pos + j) % slots.length;
+                    int pb = (pos + le - j - 1) % slots.length;
+                    int a = slots[pa];
+                    slots[pa] = slots[pb];
+                    slots[pb] = a;
+                }
+                pos += le + skip;
+                skip++;
+            }
+        }
+
+        String out = "";
+
+        for (int i = 0; i < 16; i++) {
+            int dense = 0;
+            for (int j = 0; j < 16; j++) {
+                dense ^= slots[i * 16 + j];
+            }
+
+            String s = Integer.toHexString(dense);
+            if (s.length() < 2) s = "0" + s;
+            out += s;
+        }
+
+        System.out.println(out);
+        // e1462100a34221a7f0906da15c1c979a
+    }
+
+    static void Day10_a() {
+        int[] slots = new int[256];
+        for (int i = 0; i < slots.length; i++)
+            slots[i] = i;
+
+        int[] lengths = { 130, 126, 1, 11, 140, 2, 255, 207, 18, 254, 246, 164, 29, 104, 0, 224 };
+        int skip = 0;
+        int pos = 0;
+        for (int i = 0; i < lengths.length; i++) {
+            // reverse list
+            int le = lengths[i];
+            for (int j = 0; j < le / 2; j++) {
+                int pa = (pos + j) % slots.length;
+                int pb = (pos + le - j - 1) % slots.length;
+                int a = slots[pa];
+                slots[pa] = slots[pb];
+                slots[pb] = a;
+            }
+            pos += le + skip;
+            skip++;
+            //            System.out.println(Arrays.toString(slots));
+        }
+
+        System.out.println(slots[0] * slots[1]);
+        // 38628
+    }
+
+    static void Day9() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day9.txt")));
+
+            String l = br.readLine();
+            int score = 0;
+            int depth = 0;
+            int garbo = 0;
+            boolean garb = false;
+            for (int i = 0; i < l.length(); i++) {
+                switch (l.charAt(i)) {
+                case '{':
+                    if (!garb) depth++;
+                    else garbo++;
+                    break;
+                case '}':
+                    if (!garb) {
+                        score += depth;
+                        depth--;
+                    } else garbo++;
+                    break;
+                case '<':
+                    if (garb)
+                        garbo++;
+                    garb = true;
+                    break;
+                case '>':
+                    garb = false;
+                    break;
+                case '!':
+                    i++;
+                    break;
+                default:
+                    if (garb) garbo++;
+
+                }
+            }
+
+            System.out.println(score);
+            System.out.println(garbo);
+
+            // 10050
+            // 4482
+
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     static int Day8_max = 0;
