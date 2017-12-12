@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.TreeSet;
 
 /**
  * @author Maximilian Stark | Dakror
@@ -32,7 +33,69 @@ public class AdventOfCode17 {
     static String path = "src\\de\\dakror\\adventofcode17\\";
 
     public static void main(String[] args) {
-        Day11();
+        Day12_a();
+    }
+
+    static ArrayList<TreeSet<Integer>> Day12_list = new ArrayList<>();
+
+    static TreeSet<Integer> Day12_seen = new TreeSet<>();
+
+    static void Day12_a() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day12.txt")));
+
+            String l = null;
+            while ((l = br.readLine()) != null) {
+                String[] p = l.substring(l.indexOf("<->") + 4).split(", ");
+                TreeSet<Integer> s = new TreeSet<>();
+                for (String p1 : p) {
+                    s.add(Integer.parseInt(p1));
+                }
+                Day12_list.add(s);
+            }
+
+            int count = Day12_rec(0);
+
+            System.out.println(count);
+            // 169
+            
+            Day12_seen.clear();
+            
+            int concomp = 0;
+            
+            while(Day12_seen.size() < Day12_list.size()) {
+                for(int i = 0; i < Day12_list.size();i++) {
+                    if(!Day12_seen.contains(i)) {
+                        Day12_rec(i);
+                        concomp++;
+                    }
+                }
+            }
+            
+            System.out.println(concomp);
+            // 179
+            
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static int Day12_rec(int node) {
+        if (Day12_seen.contains(node)) return 0;
+
+        int count = 1;
+        
+        Day12_seen.add(node);
+        
+        for (int i : Day12_list.get(node)) {
+            if (!Day12_seen.contains(i)) {
+                count+= Day12_rec(i);
+                Day12_seen.add(i);
+            }
+        }
+        
+        return count;
     }
 
     static void Day11() {
