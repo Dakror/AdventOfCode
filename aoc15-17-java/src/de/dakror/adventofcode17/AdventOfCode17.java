@@ -33,7 +33,82 @@ public class AdventOfCode17 {
     static String path = "src\\de\\dakror\\adventofcode17\\";
 
     public static void main(String[] args) {
-        Day12_a();
+        Day13_b();
+    }
+
+    static void Day13_b() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day13.txt")));
+
+            HashMap<Integer, Integer> map = new HashMap<>();
+            String s = null;
+            int max = 0;
+            while ((s = br.readLine()) != null) {
+                String[] p = s.split(": ");
+                int i = Integer.parseInt(p[0]);
+                max = i;
+                map.put(i, Integer.parseInt(p[1]));
+            }
+
+            int offset = 0;
+            while (true) {
+                boolean all = true;
+                for (int i = 0; i <= max; i++) {
+                    int mod = map.getOrDefault(i, 0);
+                    if (mod > 0) {
+                        if ((i + offset) % (2 * mod - 2) == 0) {
+                            all = false;
+                            break;
+                        }
+                    }
+                }
+                if (!all) {
+                    offset++;
+                } else {
+                    System.out.println(offset);
+
+                    // 3905748
+                    break;
+                }
+            }
+
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void Day13_a() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day13.txt")));
+
+            HashMap<Integer, Integer> map = new HashMap<>();
+            String s = null;
+            int max = 0;
+            while ((s = br.readLine()) != null) {
+                String[] p = s.split(": ");
+                int i = Integer.parseInt(p[0]);
+                max = i;
+                map.put(i, Integer.parseInt(p[1]));
+            }
+
+            int severity = 0;
+            for (int i = 0; i <= max; i++) {
+                int mod = map.getOrDefault(i, 0);
+                if (mod > 0) {
+                    if (i % (2 * mod - 2) == 0) {
+                        severity += i * mod;
+                    }
+                }
+            }
+
+            System.out.println(severity);
+            // 788
+
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     static ArrayList<TreeSet<Integer>> Day12_list = new ArrayList<>();
@@ -58,23 +133,23 @@ public class AdventOfCode17 {
 
             System.out.println(count);
             // 169
-            
+
             Day12_seen.clear();
-            
+
             int concomp = 0;
-            
-            while(Day12_seen.size() < Day12_list.size()) {
-                for(int i = 0; i < Day12_list.size();i++) {
-                    if(!Day12_seen.contains(i)) {
+
+            while (Day12_seen.size() < Day12_list.size()) {
+                for (int i = 0; i < Day12_list.size(); i++) {
+                    if (!Day12_seen.contains(i)) {
                         Day12_rec(i);
                         concomp++;
                     }
                 }
             }
-            
+
             System.out.println(concomp);
             // 179
-            
+
             br.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,16 +160,16 @@ public class AdventOfCode17 {
         if (Day12_seen.contains(node)) return 0;
 
         int count = 1;
-        
+
         Day12_seen.add(node);
-        
+
         for (int i : Day12_list.get(node)) {
             if (!Day12_seen.contains(i)) {
-                count+= Day12_rec(i);
+                count += Day12_rec(i);
                 Day12_seen.add(i);
             }
         }
-        
+
         return count;
     }
 
