@@ -19,6 +19,7 @@ package de.dakror.adventofcode17;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,7 +34,51 @@ public class AdventOfCode17 {
     static String path = "src\\de\\dakror\\adventofcode17\\";
 
     public static void main(String[] args) {
-        Day13_b();
+        Day14_b();
+    }
+
+    static byte[][] Day14_map = new byte[128][16];
+
+    static void Day14_b() {
+        String input = "ljoxqyyw";
+        for (int i = 0; i < 128; i++) {
+            BigInteger bi = new BigInteger(knotHash(input + "-" + i), 16);
+            Day14_map[i] = new byte[16];
+            byte[] bs = bi.toByteArray();
+            System.arraycopy(bs, Math.max(0, bs.length - 16), Day14_map[i], Math.max(0, 16 - bs.length), 16);
+            for (byte b : Day14_map[i]) {
+                String s = Integer.toBinaryString(b & 0xff);
+                while (s.length() < 8)
+                    s = "0" + s;
+                System.out.print(s);
+            }
+            System.out.println();
+            break;
+        }
+
+        int groups = 0;
+        for (int i = 0; i < 128; i++) {
+            for (int j = 0; j < 128; j++) {
+                System.out.print((Day14_map[i][j / 8] >> (j % 8)) & 1);
+            }
+            break;
+        }
+    }
+
+    static boolean Day14_removeGroup(int x, int y) {
+        if ((Day14_map[y][x / 8] >> (x % 8)) & 1 == 0) return false;
+        return true;
+    }
+
+    static void Day14_a() {
+        String input = "ljoxqyyw";
+        int used = 0;
+        for (int i = 0; i < 128; i++) {
+            BigInteger bi = new BigInteger(knotHash(input + "-" + i), 16);
+            used += bi.bitCount();
+        }
+        System.out.println(used);
+        // 8316
     }
 
     static void Day13_b() {
@@ -230,13 +275,12 @@ public class AdventOfCode17 {
         }
     }
 
-    static void Day10_b() {
+    static String knotHash(String input) {
         int[] slots = new int[256];
         for (int i = 0; i < slots.length; i++)
             slots[i] = i;
 
-        String len = "130,126,1,11,140,2,255,207,18,254,246,164,29,104,0,224";
-        int[] leng = len.chars().toArray();
+        int[] leng = input.chars().toArray();
 
         int[] lengths = new int[leng.length + 5];
         System.arraycopy(leng, 0, lengths, 0, leng.length);
@@ -267,13 +311,18 @@ public class AdventOfCode17 {
             for (int j = 0; j < 16; j++) {
                 dense ^= slots[i * 16 + j];
             }
-
             String s = Integer.toHexString(dense);
             if (s.length() < 2) s = "0" + s;
             out += s;
         }
 
-        System.out.println(out);
+        return out;
+    }
+
+    static void Day10_b() {
+        String hash = knotHash("130,126,1,11,140,2,255,207,18,254,246,164,29,104,0,224");
+
+        System.out.println(hash);
         // e1462100a34221a7f0906da15c1c979a
     }
 
