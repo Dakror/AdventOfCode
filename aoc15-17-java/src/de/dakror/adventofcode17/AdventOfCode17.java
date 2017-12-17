@@ -34,7 +34,253 @@ public class AdventOfCode17 {
     static String path = "src\\de\\dakror\\adventofcode17\\";
 
     public static void main(String[] args) {
-        Day14_b();
+        Day16_b();
+    }
+
+    static class Day16_Node {
+        char p;
+        Day16_Node prev, next;
+        Day16_Node end;
+
+        public Day16_Node(char c) {
+            p = c;
+        }
+
+        public Day16_Node add(char c) {
+            if (next == null) {
+                next = new Day16_Node(c);
+                next.prev = this;
+                next.end = next;
+                end = next;
+                return next;
+            } else {
+                end = next.add(c);
+                return end;
+            }
+        }
+
+        @Override
+        public String toString() {
+            return p + "" + (next != null ? next.toString() : "");
+        }
+
+        Day16_Node spin(int num) {
+            Day16_Node start = end;
+            for (int i = 1; i < num; i++)
+                start = start.prev;
+
+            end = start.prev;
+            end.end = end;
+            end.next = null;
+            start.end.next = this;
+            start.end = start.prev;
+            start.prev = null;
+
+            return start;
+        }
+
+        void swap(int a, int b) {
+            Day16_Node n = this;
+            Day16_Node m = null;
+            Day16_Node o = null;
+            for (int i = 0; i < 16; i++) {
+                if (i == a) m = n;
+                if (i == b) o = n;
+                //                if (m != null && o != null) break;
+                n = n.next;
+            }
+
+            char c = m.p;
+            m.p = o.p;
+            o.p = c;
+        }
+
+        void exchange(int a, int b) {
+            Day16_Node n = this;
+            Day16_Node m = null;
+            Day16_Node o = null;
+            for (int i = 0; i < 16; i++) {
+                if (n.p == a) m = n;
+                if (n.p == b) o = n;
+                //                if (m != null && o != null) break;
+
+                n = n.next;
+            }
+
+            char c = m.p;
+            m.p = o.p;
+            o.p = c;
+        }
+    }
+
+    static void Day16_b() {
+        Day16_Node list = new Day16_Node('a');
+        for (int i = 1; i < 16; i++) {
+            list.add("abcdefghijklmnop".charAt(i));
+        }
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day16.txt")));
+
+            String l = br.readLine();
+
+            String[] instr = l.split(",");
+
+            int[][] cache = new int[instr.length][];
+            char[] mode = new char[instr.length];
+
+            int a = 0, b = 0;
+
+            //            long sp = 0, xp = 0, pp = 0;
+            //            int sc = 0, xc = 0, pc = 0;
+
+            for (int i = 0; i < 1_000_000_000; i++) {
+                for (int j = 0; j < instr.length; j++) {
+                    if (i == 0)
+                        mode[j] = instr[j].charAt(0);
+                    //                    long t = System.nanoTime();
+                    switch (mode[j]) {
+                    case 's': {
+                        if (cache[j] == null) {
+                            a = Integer.parseInt(instr[j].substring(1));
+                            cache[j] = new int[] { a };
+                        } else {
+                            a = cache[j][0];
+                        }
+                        list = list.spin(a);
+                        //                        sp += System.nanoTime() - t;
+                        //                        sc++;
+                        break;
+                    }
+                    case 'x': {
+                        if (cache[j] == null) {
+                            String[] p = instr[j].substring(1).split("\\/");
+                            a = Integer.parseInt(p[0]);
+                            b = Integer.parseInt(p[1]);
+                            cache[j] = new int[] { a, b };
+                        } else {
+                            a = cache[j][0];
+                            b = cache[j][1];
+                        }
+                        list.swap(a, b);
+                        //                        xp += System.nanoTime() - t;
+                        //                        xc++;
+                        break;
+                    }
+                    case 'p': {
+                        if (cache[j] == null) {
+                            String[] p = instr[j].substring(1).split("\\/");
+                            a = p[0].charAt(0);
+                            b = p[1].charAt(0);
+                            cache[j] = new int[] { a, b };
+                        } else {
+                            a = cache[j][0];
+                            b = cache[j][1];
+                        }
+                        list.exchange(a, b);
+                        //                        pp += System.nanoTime() - t;
+                        //                        pc++;
+                        break;
+                    }
+                    }
+                }
+                if (i % 100_000 == 0 && i > 0)
+                    System.out.println(i/* + ", " + (sp / (double) sc) + ", " + (xp / (double) xc) + ", " + (pp / (double) pc) + ", (" + sc + ", " + xc + ", " + pc + ")"*/);
+            }
+
+            System.out.println(list.toString());
+            // ceijbfoamgkdnlph
+
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void Day16_a() {
+        String prog = "abcdefghijklmnop";
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day16.txt")));
+
+            String l = br.readLine();
+
+            String[] instr = l.split(",");
+            for (String s : instr) {
+                switch (s.charAt(0)) {
+                case 's': {
+                    int off = prog.length() - Integer.parseInt(s.substring(1));
+                    prog = prog.substring(off) + prog.substring(0, off);
+                    break;
+                }
+                case 'x': {
+                    String[] p = s.substring(1).split("\\/");
+                    int a = Integer.parseInt(p[0]);
+                    int b = Integer.parseInt(p[1]);
+                    System.out.println(a + ", " + b);
+                    if (a < b) {
+                        prog = prog.substring(0, a) + prog.charAt(b) + prog.substring(a + 1, b) + prog.charAt(a) + prog.substring(b + 1);
+                    } else {
+                        prog = prog.substring(0, b) + prog.charAt(a) + prog.substring(b + 1, a) + prog.charAt(b) + prog.substring(a + 1);
+                    }
+                    break;
+                }
+                case 'p': {
+                    String[] p = s.substring(1).split("\\/");
+                    int a = prog.indexOf(p[0]);
+                    int b = prog.indexOf(p[1]);
+                    if (a < b) {
+                        prog = prog.substring(0, a) + prog.charAt(b) + prog.substring(a + 1, b) + prog.charAt(a) + prog.substring(b + 1);
+                    } else {
+                        prog = prog.substring(0, b) + prog.charAt(a) + prog.substring(b + 1, a) + prog.charAt(b) + prog.substring(a + 1);
+                    }
+                    break;
+                }
+                }
+            }
+
+            System.out.println(prog);
+            // ceijbfoamgkdnlph
+
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void Day15_b() {
+        long a = 699;
+        long b = 124;
+
+        int count = 0;
+
+        for (int i = 0; i < 5_000_000; i++) {
+            do {
+                a = (a * 16807) % Integer.MAX_VALUE;
+            } while (a % 4 != 0);
+            do {
+                b = (b * 48271) % Integer.MAX_VALUE;
+            } while (b % 8 != 0);
+            if (((short) a) == ((short) b)) count++;
+        }
+
+        System.out.println(count);
+        // 313
+    }
+
+    static void Day15_a() {
+        long a = 699;
+        long b = 124;
+
+        int count = 0;
+
+        for (int i = 0; i < 40_000_000; i++) {
+            a = (a * 16807) % Integer.MAX_VALUE;
+            b = (b * 48271) % Integer.MAX_VALUE;
+            if (((short) a) == ((short) b)) count++;
+        }
+
+        System.out.println(count);
+        // 600
     }
 
     static byte[][] Day14_map = new byte[128][16];
@@ -46,34 +292,35 @@ public class AdventOfCode17 {
             Day14_map[i] = new byte[16];
             byte[] bs = bi.toByteArray();
             System.arraycopy(bs, Math.max(0, bs.length - 16), Day14_map[i], Math.max(0, 16 - bs.length), 16);
-            for (byte b : Day14_map[i]) {
-                String s = Integer.toBinaryString(b & 0xff);
-                while (s.length() < 8)
-                    s = "0" + s;
-                System.out.print(s);
-            }
-            System.out.println();
-            break;
         }
-
         int groups = 0;
         for (int i = 0; i < 128; i++) {
             for (int j = 0; j < 128; j++) {
-        //         if(Day14_removeGroup(i, j)) groups++;
+                if (Day14_removeGroup(i, j)) groups++;
             }
-            break;
         }
+        System.out.println(groups);
+        // 1074
     }
 
     static boolean Day14_isSet(int x, int y) {
+
         return ((Day14_map[y][x / 8] >> (7 - (x % 8))) & 1) != 0;
+    }
+
+    static void Day14_unset(int x, int y) {
+        Day14_map[y][x / 8] &= ~(1 << (7 - (x % 8)));
     }
 
     static boolean Day14_removeGroup(int x, int y) {
         if (!Day14_isSet(x, y)) return false;
-        
-        
-        
+
+        Day14_unset(x, y);
+        if (x > 0) Day14_removeGroup(x - 1, y);
+        if (y > 0) Day14_removeGroup(x, y - 1);
+        if (x < 127) Day14_removeGroup(x + 1, y);
+        if (y < 127) Day14_removeGroup(x, y + 1);
+
         return true;
     }
 
