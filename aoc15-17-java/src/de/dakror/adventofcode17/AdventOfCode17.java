@@ -40,40 +40,37 @@ public class AdventOfCode17 {
     static class Day16_Node {
         char p;
         Day16_Node prev, next;
-        Day16_Node end;
 
         public Day16_Node(char c) {
             p = c;
         }
 
-        public Day16_Node add(char c) {
+        public void add(char c) {
             if (next == null) {
                 next = new Day16_Node(c);
                 next.prev = this;
-                next.end = next;
-                end = next;
-                return next;
             } else {
-                end = next.add(c);
-                return end;
+                next.add(c);
             }
         }
 
         @Override
         public String toString() {
-            return p + "" + (next != null ? next.toString() : "");
+            return p + (next != null ? next.toString() : "");//"[" + (prev != null ? prev.p : "") + "]" + p + "," + (next != null ? next : "");
         }
 
         Day16_Node spin(int num) {
-            Day16_Node start = end;
-            for (int i = 1; i < num; i++)
-                start = start.prev;
+            Day16_Node start = this;
+            for (int i = 0; i < 16 - num; i++)
+                start = start.next;
 
-            end = start.prev;
-            end.end = end;
-            end.next = null;
-            start.end.next = this;
-            start.end = start.prev;
+            start.prev.next = null;
+
+            Day16_Node end = start;
+            while (end.next != null)
+                end = end.next;
+            end.next = this;
+            prev = end;
             start.prev = null;
 
             return start;
@@ -134,7 +131,9 @@ public class AdventOfCode17 {
             //            long sp = 0, xp = 0, pp = 0;
             //            int sc = 0, xc = 0, pc = 0;
 
-            for (int i = 0; i < 1_000_000_000; i++) {
+            HashMap<String, Integer> strs = new HashMap<String, Integer>();
+
+            for (int i = 0; i < 60; i++) {
                 for (int j = 0; j < instr.length; j++) {
                     if (i == 0)
                         mode[j] = instr[j].charAt(0);
@@ -184,11 +183,26 @@ public class AdventOfCode17 {
                     }
                     }
                 }
+
+                String s = list.toString();
+                Integer o = strs.get(s);
+                if (o != null) {
+                    System.out.println("Repetition: " + i + " vs. " + o);
+                    System.out.println(s);
+                } else {
+                    strs.put(s, i);
+                }
+
+                //                Thread.sleep(50);
+
                 if (i % 100_000 == 0 && i > 0)
                     System.out.println(i/* + ", " + (sp / (double) sc) + ", " + (xp / (double) xc) + ", " + (pp / (double) pc) + ", (" + sc + ", " + xc + ", " + pc + ")"*/);
             }
 
-            System.out.println(list.toString());
+            for (Entry<String, Integer> e : strs.entrySet()) {
+                if (e.getValue() == 1_000_000_000 % 60) System.out.println(e.getKey());
+            }
+
             // ceijbfoamgkdnlph
 
             br.close();
