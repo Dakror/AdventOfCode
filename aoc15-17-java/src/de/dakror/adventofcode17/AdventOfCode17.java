@@ -59,14 +59,21 @@ public class AdventOfCode17 {
         int groups = 0;
         for (int i = 0; i < 128; i++) {
             for (int j = 0; j < 128; j++) {
-                System.out.print((Day14_map[i][j / 8] >> (j % 8)) & 1);
+        //         if(Day14_removeGroup(i, j)) groups++;
             }
             break;
         }
     }
 
+    static boolean Day14_isSet(int x, int y) {
+        return ((Day14_map[y][x / 8] >> (7 - (x % 8))) & 1) != 0;
+    }
+
     static boolean Day14_removeGroup(int x, int y) {
-        if ((Day14_map[y][x / 8] >> (x % 8)) & 1 == 0) return false;
+        if (!Day14_isSet(x, y)) return false;
+        
+        
+        
         return true;
     }
 
