@@ -22,11 +22,9 @@ import java.io.FileReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
@@ -40,124 +38,163 @@ public class AdventOfCode17 {
         Day18_b();
     }
 
+    static void Day19() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day19.txt")));
+            String[] lines = br.lines().toArray(x -> new String[x]);
+            int x = 0, y = 0;
+            int w = lines[0].length();
+
+            int dx = 0, dy = 1;
+            for (int i = 0; i < w; i++) {
+                if (lines[0].charAt(i) == '|') {
+                    x = i;
+                    break;
+                }
+            }
+
+            StringBuilder letters = new StringBuilder();
+
+            int steps = 0;
+            while (true) {
+                char c = lines[y].charAt(x);
+                if (c == '+') {
+                    boolean found = false;
+                    for (int i = -1; i < 2; i++) {
+                        if (found) break;
+                        for (int j = -1; j < 2; j++) {
+                            if (i * i + j * j == 1
+                                    && (i != dx && j != dy)
+                                    && lines[y + j].charAt(x + i) != ' ') {
+                                dx = i;
+                                dy = j;
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                } else if (c - 'A' >= 0 && c - 'A' <= 26) {
+                    letters.append(c);
+                    if (lines[y + dy].charAt(x + dx) == ' ') break;
+                }
+                x += dx;
+                y += dy;
+                steps++;
+            }
+
+            System.out.println(letters.toString());
+            // DTOUFARJQ
+            System.out.println(steps + 1);
+            // 16642
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     static void Day18_b() {
         try {
             BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day18.txt")));
 
-            final long[][] registers = new long[2][26];
+            long[][] registers = new long[2][26];
             registers[1]['p' - 'a'] = 1;
 
-            final List<Long>[] queues = new List[2];
-            queues[0] = Collections.synchronizedList(new LinkedList<>());
-            queues[1] = Collections.synchronizedList(new LinkedList<>());
+            LinkedList<Long>[] queues = new LinkedList[2];
+            queues[0] = new LinkedList<>();
+            queues[1] = new LinkedList<>();
 
-            final String[] commands = br.lines().toArray(x -> new String[x]);
+            String[] commands = br.lines().toArray(x -> new String[x]);
 
-            final boolean[] waiting = new boolean[2];
+            boolean[] waiting = new boolean[2];
 
-            final long[] sent = new long[2];
+            long[] sent = new long[2];
 
-            for (int i = 0; i < 2; i++) {
-                final int index = i;
-                new Thread() {
-                    @Override
-                    public void run() {
-                        long val = 0;
-                        for (int i = 0; i < commands.length;) {
-                            String[] p = commands[i].split(" ");
-                            boolean incr = true;
-                            switch (p[0]) {
-                            case "snd":
-                                try {
-                                    val = Integer.parseInt(p[1]);
-                                } catch (Exception e) {
-                                    val = registers[index][p[1].charAt(0) - 'a'];
-                                }
-                                //                                System.out.println(index + " sending");
-                                synchronized (queues[(index + 1) % 2]) {
-                                    queues[(index + 1) % 2].add(val);
-                                }
-                                System.out.println(index + " sent");
-                                sent[index]++;
-                                break;
-                            case "set":
-                                try {
-                                    val = Integer.parseInt(p[2]);
-                                } catch (Exception e) {
-                                    val = registers[index][p[2].charAt(0) - 'a'];
-                                }
-                                registers[index][p[1].charAt(0) - 'a'] = val;
-                                break;
-                            case "add":
-                                try {
-                                    val = Integer.parseInt(p[2]);
-                                } catch (Exception e) {
-                                    val = registers[index][p[2].charAt(0) - 'a'];
-                                }
-                                registers[index][p[1].charAt(0) - 'a'] += val;
-                                break;
-                            case "mul":
-                                try {
-                                    val = Integer.parseInt(p[2]);
-                                } catch (Exception e) {
-                                    val = registers[index][p[2].charAt(0) - 'a'];
-                                }
-                                registers[index][p[1].charAt(0) - 'a'] *= val;
-                                break;
-                            case "mod":
-                                try {
-                                    val = Integer.parseInt(p[2]);
-                                } catch (Exception e) {
-                                    val = registers[index][p[2].charAt(0) - 'a'];
-                                }
-                                registers[index][p[1].charAt(0) - 'a'] %= val;
-                                break;
-                            case "jgz":
-                                long val1 = 0;
-                                try {
-                                    val1 = Integer.parseInt(p[1]);
-                                } catch (Exception e) {
-                                    val1 = registers[index][p[1].charAt(0) - 'a'];
-                                }
-                                try {
-                                    val = Integer.parseInt(p[2]);
-                                } catch (Exception e) {
-                                    val = registers[index][p[2].charAt(0) - 'a'];
-                                }
-                                if (val1 > 0) {
-                                    i += val;
-                                    incr = false;
-                                }
-                                break;
-                            case "rcv":
-                                //                                System.out.println(index + " receiving");
-                                synchronized (queues[index]) {
-                                    if (queues[index].size() > 0) {
-                                        registers[index][p[1].charAt(0) - 'a'] = queues[index].remove(0);
-                                        System.out.println(index + " received a");
+            int[] pc = new int[2];
 
-                                        break;
-                                    }
-                                }
-
-                                int other = (index + 1) % 2;
-                                waiting[index] = true;
-                                while (queues[index].size() == 0) {//37017
-                                    System.out.println(index + " waiting");
-                                    if (waiting[other]) {
-                                        System.err.println(sent[1]);
-                                        System.exit(0);
-                                    }
-                                }
-                                waiting[index] = false;
-                                System.out.println(index + " received b");
-
-                                break;
-                            }
-                            if (incr) i++;
-                        }
+            long val = 0;
+            int index = 0;
+            for (; pc[index] < commands.length;) {
+                String[] p = commands[pc[index]].split(" ");
+                boolean incr = true;
+                switch (p[0]) {
+                case "snd":
+                    try {
+                        val = Integer.parseInt(p[1]);
+                    } catch (Exception e) {
+                        val = registers[index][p[1].charAt(0) - 'a'];
                     }
-                }.start();
+
+                    queues[(index + 1) % 2].add(val);
+                    sent[index]++;
+                    break;
+                case "set":
+                    try {
+                        val = Integer.parseInt(p[2]);
+                    } catch (Exception e) {
+                        val = registers[index][p[2].charAt(0) - 'a'];
+                    }
+                    registers[index][p[1].charAt(0) - 'a'] = val;
+                    break;
+                case "add":
+                    try {
+                        val = Integer.parseInt(p[2]);
+                    } catch (Exception e) {
+                        val = registers[index][p[2].charAt(0) - 'a'];
+                    }
+                    registers[index][p[1].charAt(0) - 'a'] += val;
+                    break;
+                case "mul":
+                    try {
+                        val = Integer.parseInt(p[2]);
+                    } catch (Exception e) {
+                        val = registers[index][p[2].charAt(0) - 'a'];
+                    }
+                    registers[index][p[1].charAt(0) - 'a'] *= val;
+                    break;
+                case "mod":
+                    try {
+                        val = Integer.parseInt(p[2]);
+                    } catch (Exception e) {
+                        val = registers[index][p[2].charAt(0) - 'a'];
+                    }
+                    registers[index][p[1].charAt(0) - 'a'] %= val;
+                    break;
+                case "jgz":
+                    long val1 = 0;
+                    try {
+                        val1 = Integer.parseInt(p[1]);
+                    } catch (Exception e) {
+                        val1 = registers[index][p[1].charAt(0) - 'a'];
+                    }
+                    try {
+                        val = Integer.parseInt(p[2]);
+                    } catch (Exception e) {
+                        val = registers[index][p[2].charAt(0) - 'a'];
+                    }
+                    if (val1 > 0) {
+                        pc[index] += val;
+                        incr = false;
+                    }
+                    break;
+                case "rcv":
+                    if (queues[index].isEmpty()) {
+                        int other = (index + 1) % 2;
+                        if (waiting[other]) {
+                            System.err.println(sent[1]);
+                            return;
+                        }
+                        waiting[index] = true;
+                        incr = false;
+                        index = (index + 1) % 2;
+                        break;
+                    } else {
+                        registers[index][p[1].charAt(0) - 'a'] = queues[index].remove(0);
+                        System.out.println(index + " received a");
+
+                        break;
+                    }
+                }
+                if (incr) pc[index]++;
             }
 
             br.close();
