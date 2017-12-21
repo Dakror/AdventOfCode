@@ -22,11 +22,14 @@ import java.io.FileReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Maximilian Stark | Dakror
@@ -35,7 +38,99 @@ public class AdventOfCode17 {
     static String path = "src\\de\\dakror\\adventofcode17\\";
 
     public static void main(String[] args) {
-        Day18_b();
+        Day20_a();
+    }
+
+    static class Day20_Particle {
+        static Pattern reg = Pattern.compile("p=<(.+?)>, v=<(.+?)>, a=<(.+?)>");
+        long[] p, v, a;
+        int i = 0;
+        static int index = 0;
+        long dist = Long.MAX_VALUE;
+
+        ArrayList<Long> dists = new ArrayList<>();
+
+        boolean out;
+
+        public Day20_Particle(String def) {
+            Matcher m = reg.matcher(def);
+            i = index;
+            index++;
+            m.find();
+            String[] s = m.group(1).split(",");
+            p = new long[] { Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2]) };
+
+            s = m.group(2).split(",");
+            v = new long[] { Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2]) };
+
+            s = m.group(3).split(",");
+            a = new long[] { Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2]) };
+        }
+    }
+
+    static void Day20_a() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(path + "Day20.txt")));
+
+            Day20_Particle[] ps = br.lines().map(x -> new Day20_Particle(x)).toArray(x -> new Day20_Particle[x]);
+
+            Arrays.sort(ps, new Comparator<Day20_Particle>() {
+
+                @Override
+                public int compare(Day20_Particle o1, Day20_Particle o2) {
+                    long m1 = Math.abs(o1.a[0]) + Math.abs(o1.a[1]) + Math.abs(o1.a[2]);
+                    long m2 = Math.abs(o2.a[0]) + Math.abs(o2.a[1]) + Math.abs(o2.a[2]);
+
+                    return Long.compare(m1, m2);
+                }
+
+            });
+
+            System.out.println(ps[ps.length - 1].i);
+
+            /* long ind = 0, min = Integer.MAX_VALUE;
+            
+            for (int i = 0; i < 1000; i++) {
+                boolean any = false;
+                //                long t = System.nanoTime();
+                //                min = Integer.MAX_VALUE;
+                int k = 0;
+                for (Day20_Particle p : ps) {
+                    if (!p.out) {
+                        any = true;
+            
+                        long dist = 0;
+                        for (int j = 0; j < 3; j++) {
+                            p.v[j] += p.a[j];
+                            p.p[j] += p.v[j];
+                            dist += Math.abs(p.p[j]);
+                        }
+                        //                                                p.dists.add(dist);
+                        //                        if (p.dist < Long.MAX_VALUE && dist - p.dist > 1_000_000l) {
+                        //                            System.out.println(dist + ", " + p.dist);
+                        //                            p.out = true;
+                        //                        }
+                        p.dist = Math.min(dist, p.dist);
+                        if (p.dist < min) {
+                            ind = k;
+                            min = p.dist;
+                            System.out.println(ind + " with " + p.dist);
+                        }
+                    }
+                    k++;
+                    //                    Collections.sort(p.dists);
+                }
+            
+                if (!any) {
+                    System.out.println(i + ". ded: " + ind + " with " + min);
+                    break;
+                }
+            }*/
+
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     static void Day19() {
